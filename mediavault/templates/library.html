@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Library — MediaVault{% endblock %}
+
+{% block content %}
+<div class="library-container">
+    <h1>My Library</h1>
+
+    <!-- Filters -->
+    <form method="GET" action="/library" class="filter-form">
+        <select name="status" class="search-select" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            {% for s in statuses %}
+                <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>
+                    {{ s.replace('_', ' ').title() }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="category" class="search-select" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+                <option value="{{ c }}" {% if selected_cat == c %}selected{% endif %}>
+                    {{ c.title() }}
+                </option>
+            {% endfor %}
+        </select>
+
+        {% if selected_status or selected_cat %}
+            <a href="/library" class="btn-clear">Clear Filters</a>
+        {% endif %}
+    </form>
+
+    {% if not items %}
+        <p class="no-results">
+            Nothing here yet.
+            <a href="/search">Search and add something.</a>
+        </p>
+    {% endif %}
+
+    <div class="results-grid">
+        {% for item in items %}
+        <div class="result-card">
+            <a href="/library/{{ item.id }}">
+                {% if item.cover_image_url %}
+                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
+                {% else %}
+                    <div class="card-cover card-no-image">No Image</div>
+                {% endif %}
+            </a>
+
+            <div class="card-body">
+                <h3 class="card-title">
+                    <a href="/library/{{ item.id }}" class="card-link">{{ item.title }}</a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="status-badge status-{{ item.status.value }}">
+                        {{ item.status.value.replace('_', ' ').title() }}
+                    </span>
+                    <span class="category-badge">{{ item.category.value.title() }}</span>
+                </div>
+
+                {% if item.genres %}
+                    <p class="card-genres">{{ item.genres }}</p>
+                {% endif %}
+
+                <p class="card-progress">
+                    Progress: {{ item.progress }}{% if item.total %}/{{ item.total }}{% endif %}
+                </p>
+
+                {% if item.user_rating %}
+                    <p class="card-meta">⭐ {{ item.user_rating }}/10</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

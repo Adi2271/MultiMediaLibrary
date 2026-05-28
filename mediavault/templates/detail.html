@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} — MediaVault{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+
+    <div class="detail-header">
+        {% if item.cover_image_url %}
+            <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="detail-cover">
+        {% endif %}
+
+        <div class="detail-info">
+            <h1>{{ item.title }}</h1>
+
+            <div class="card-meta" style="margin: 0.5rem 0;">
+                <span class="status-badge status-{{ item.status.value }}">
+                    {{ item.status.value.replace('_', ' ').title() }}
+                </span>
+                <span class="category-badge">{{ item.category.value.title() }}</span>
+                {% if item.year_released %}<span>{{ item.year_released }}</span>{% endif %}
+                {% if item.user_rating %}<span>⭐ {{ item.user_rating }}/10</span>{% endif %}
+            </div>
+
+            {% if item.genres %}
+                <p class="card-genres">{{ item.genres }}</p>
+            {% endif %}
+
+            {% if item.synopsis %}
+                <p class="detail-synopsis">{{ item.synopsis }}</p>
+            {% endif %}
+
+            {% if item.reference_url %}
+                <a href="{{ item.reference_url }}" target="_blank" class="ref-link">
+                    View on Source ↗
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Update Panel -->
+    <div class="update-panel">
+        <h2>Update</h2>
+
+        <div class="update-row">
+            <label>Status</label>
+            <select id="status-select" class="search-select">
+                {% for s in statuses %}
+                    <option value="{{ s }}" {% if item.status.value == s %}selected{% endif %}>
+                        {{ s.replace('_', ' ').title() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="update-row">
+            <label>Progress</label>
+            <div class="progress-row">
+                <input
+                    type="number"
+                    id="progress-input"
+                    value="{{ item.progress }}"
+                    min="0"
+                    {% if item.total %}max="{{ item.total }}"{% endif %}
+                    class="search-input"
+                    style="width: 100px;"
+                />
+                {% if item.total %}
+                    <span style="color:#888;">/ {{ item.total }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="update-row">
+            <label>Rating (0–10)</label>
+            <input
+                type="number"
+                id="rating-input"
+                value="{{ item.user_rating or '' }}"
+                min="0" max="10" step="0.5"
+                class="search-input"
+                style="width: 100px;"
+            />
+        </div>
+
+        <button
+            class="btn-primary"
+            onclick="updateItem({{ item.id }})"
+        >
+            Save Changes
+        </button>
+
+        <button
+            class="btn-delete"
+            onclick="deleteItem({{ item.id }})"
+            style="margin-left: 0.75rem;"
+        >
+            Remove from Library
+        </button>
+    </div>
+
+    <!-- Activity Log -->
+    {% if logs %}
+    <div class="activity-section">
+        <h2>Activity</h2>
+        <ul class="activity-list">
+            {% for log in logs %}
+            <li class="activity-item">
+                <span class="activity-action">{{ log.action }}</span>
+                <span class="activity-detail">{{ log.detail }}</span>
+                <span class="activity-time">
+                    {{ log.timestamp.strftime('%b %d, %Y') }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
