@@ -1,14 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaVault</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <h1>MediaVault</h1>
-    <p>Step 1 complete — server is running.</p>
-    <script src="/static/js/app.js"></script>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Search — MediaVault{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <h1>Search</h1>
+
+    <form method="GET" action="/search" class="search-form">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search title..."
+            class="search-input"
+            autofocus
+        />
+        <select name="category" class="search-select">
+            <option value="anime"     {% if category == "anime" %}selected{% endif %}>Anime</option>
+            <option value="movie"     {% if category == "movie" %}selected{% endif %}>Movie</option>
+            <option value="webseries" {% if category == "webseries" %}selected{% endif %}>Webseries</option>
+        </select>
+        <button type="submit" class="btn-primary">Search</button>
+    </form>
+
+    {% if error %}
+        <p class="error-msg">{{ error }}</p>
+    {% endif %}
+
+    {% if query and not results and not error %}
+        <p class="no-results">No results found for "{{ query }}".</p>
+    {% endif %}
+
+    <div class="results-grid">
+        {% for item in results %}
+        <div class="result-card">
+            {% if item.cover_image_url %}
+                <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
+            {% else %}
+                <div class="card-cover card-no-image">No Image</div>
+            {% endif %}
+
+            <div class="card-body">
+                <h3 class="card-title">{{ item.title }}</h3>
+
+                <div class="card-meta">
+                    {% if item.year_released %}<span>{{ item.year_released }}</span>{% endif %}
+                    {% if item.score %}<span>⭐ {{ item.score }}</span>{% endif %}
+                    {% if item.total %}<span>{{ item.total }} ep/ch</span>{% endif %}
+                </div>
+
+                {% if item.genres %}
+                    <p class="card-genres">{{ item.genres }}</p>
+                {% endif %}
+
+                <p class="card-synopsis">{{ item.synopsis[:150] }}{% if item.synopsis|length > 150 %}...{% endif %}</p>
+
+                <button
+                    class="btn-add"
+                    onclick="addToLibrary(this)"
+                    data-title="{{ item.title }}"
+                    data-category="{{ category }}"
+                    data-external-id="{{ item.external_id }}"
+                    data-source-api="{{ item.source_api }}"
+                    data-cover="{{ item.cover_image_url or '' }}"
+                    data-synopsis="{{ item.synopsis | replace('"', '&quot;') }}"
+                    data-year="{{ item.year_released or '' }}"
+                    data-genres="{{ item.genres or '' }}"
+                    data-total="{{ item.total or '' }}"
+                    data-reference-url="{{ item.reference_url or '' }}"
+                >
+                    + Add to Library
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
