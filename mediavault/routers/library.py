@@ -125,6 +125,11 @@ async def update_item(
             await log_activity(db, item, "Completed", f"Completed {item.title}.")
 
     if payload.progress is not None and payload.progress != item.progress:
+        if item.total and payload.progress > item.total:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Progress cannot exceed total ({item.total})."
+            )
         changes.append(f"Progress updated to {payload.progress}")
         item.progress = payload.progress
         await log_activity(

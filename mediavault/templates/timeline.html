@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Timeline — MediaVault{% endblock %}
+
+{% block content %}
+<div class="timeline-container">
+    <h1>Activity Timeline</h1>
+
+    {% if not grouped %}
+        <p class="no-results">
+            No activity yet.
+            <a href="/search">Start by adding something to your library.</a>
+        </p>
+    {% endif %}
+
+    {% for date, logs in grouped.items() %}
+    <div class="timeline-group">
+
+        <div class="timeline-date">{{ date }}</div>
+
+        {% for log in logs %}
+        <div class="timeline-entry">
+
+            <div class="timeline-dot action-{{ log.action | lower | replace(' ', '-') }}"></div>
+
+            <div class="timeline-card">
+                <div class="timeline-card-left">
+                    {% if log.cover %}
+                        <img src="{{ log.cover }}" alt="{{ log.title }}" class="timeline-cover">
+                    {% else %}
+                        <div class="timeline-cover timeline-no-cover">?</div>
+                    {% endif %}
+                </div>
+
+                <div class="timeline-card-right">
+                    <div class="timeline-top">
+                        <span class="timeline-action action-text-{{ log.action | lower | replace(' ', '-') }}">
+                            {{ log.action }}
+                        </span>
+                        <span class="timeline-time">{{ log.time }}</span>
+                    </div>
+
+                    <a href="/library/{{ log.item_id }}" class="timeline-title">
+                        {{ log.title }}
+                    </a>
+
+                    <div class="timeline-meta">
+                        <span class="category-badge">{{ log.category.title() }}</span>
+                        <span class="status-badge status-{{ log.status }}">
+                            {{ log.status.replace('_', ' ').title() }}
+                        </span>
+                    </div>
+
+                    {% if log.detail %}
+                        <p class="timeline-detail">{{ log.detail }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

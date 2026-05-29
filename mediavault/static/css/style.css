@@ -325,3 +325,155 @@ body {
 }
 .activity-detail { color: #ccc; flex: 1; }
 .activity-time   { color: #555; white-space: nowrap; }
+
+/* ── Tabs ── */
+.tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    padding: 0.6rem 1.2rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #888;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+}
+
+.tab-btn:hover  { color: #fff; }
+.tab-btn.active { color: #e94560; border-bottom-color: #e94560; }
+
+.tab-content        { display: block; }
+.tab-content.hidden { display: none; }
+
+/* ── Manual Entry ── */
+.manual-form-wrapper { max-width: 600px; }
+
+.manual-hint {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #1a1a1a;
+    border-left: 3px solid #e94560;
+    border-radius: 0 6px 6px 0;
+}
+
+.manual-form    { display: flex; flex-direction: column; gap: 1rem; }
+
+.form-row       { display: flex; flex-direction: column; gap: 0.4rem; }
+.form-row label { font-size: 0.85rem; color: #aaa; }
+
+.manual-textarea {
+    height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+/* ── Timeline ── */
+.timeline-container h1 { margin-bottom: 2rem; }
+
+.timeline-group     { margin-bottom: 2.5rem; }
+
+.timeline-date {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #555;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.timeline-entry {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    align-items: flex-start;
+}
+
+.timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 0.75rem;
+    flex-shrink: 0;
+    background: #555;
+}
+.timeline-dot.action-added            { background: #6fcf97; }
+.timeline-dot.action-completed        { background: #56ccf2; }
+.timeline-dot.action-updated-progress { background: #f2c94c; }
+.timeline-dot.action-rated            { background: #bb6bd9; }
+.timeline-dot.action-dropped          { background: #eb5757; }
+
+.timeline-card {
+    display: flex;
+    gap: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 0.75rem;
+    flex: 1;
+    transition: border-color 0.2s;
+}
+.timeline-card:hover { border-color: #3a3a3a; }
+
+.timeline-cover {
+    width: 45px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.timeline-no-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a2a2a;
+    color: #555;
+    font-size: 1.2rem;
+    border-radius: 4px;
+}
+
+.timeline-card-right { flex: 1; min-width: 0; }
+
+.timeline-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-action              { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.action-text-added            { color: #6fcf97; }
+.action-text-completed        { color: #56ccf2; }
+.action-text-updated-progress { color: #f2c94c; }
+.action-text-rated            { color: #bb6bd9; }
+.action-text-dropped          { color: #eb5757; }
+
+.timeline-time   { font-size: 0.75rem; color: #555; }
+
+.timeline-title {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    text-decoration: none;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.timeline-title:hover { color: #e94560; }
+
+.timeline-meta   { display: flex; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+.timeline-detail { font-size: 0.8rem; color: #666; }

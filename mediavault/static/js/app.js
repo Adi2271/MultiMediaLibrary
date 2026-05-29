@@ -53,7 +53,7 @@ async function updateItem(itemId) {
 
     const payload = {
         status:      status,
-        progress:    progress ? parseInt(progress) : null,
+        progress: progress !== "" ? Math.max(0, parseInt(progress)) : null,
         user_rating: rating   ? parseFloat(rating) : null,
     };
 
@@ -106,4 +106,62 @@ function showToast(message, type = "success") {
     toast.textContent = message;
     toast.className   = `toast ${type} show`;
     setTimeout(() => { toast.className = `toast ${type}`; }, 3000);
+}
+
+// ── Tab switcher (Search vs Manual) ───────────────────────────────────────
+function switchTab(tab, btn) {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+    document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+
+    document.getElementById(`tab-${tab}`).classList.remove("hidden");
+    btn.classList.add("active");
+}
+
+// ── Manual Entry submission ────────────────────────────────────────────────
+async function submitManual() {
+    const title = document.getElementById("m-title").value.trim();
+    const cat   = document.getElementById("m-category").value;
+
+    if (!title) {
+        showToast("Title is required.", "error");
+        return;
+    }
+
+    const payload = {
+        title:           title,
+        category:        cat,
+        source_api:      "manual",
+        reference_url:   document.getElementById("m-url").value.trim()    || null,
+        genres:          document.getElementById("m-genres").value.trim()  || null,
+        cover_image_url: document.getElementById("m-cover").value.trim()   || null,
+        year_released:   document.getElementById("m-year").value
+                            ? parseInt(document.getElementById("m-year").value)
+                            : null,
+        total:           document.getElementById("m-total").value
+                            ? parseInt(document.getElementById("m-total").value)
+                            : null,
+        synopsis:        document.getElementById("m-synopsis").value.trim() || null,
+    };
+
+    try {
+        const res  = await fetch("/api/library", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast(`"${title}" added to library!`, "success");
+            // Clear form
+            ["m-title","m-url","m-genres","m-cover",
+             "m-year","m-total","m-synopsis"].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+        } else {
+            showToast(data.detail || "Could not add.", "error");
+        }
+    } catch {
+        showToast("Something went wrong.", "error");
+    }
 }

@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from database import engine, Base
-from routers import search, library
+from routers import search, library, activity
 
 
 @asynccontextmanager
@@ -21,6 +21,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.include_router(search.router)
 app.include_router(library.router)
+app.include_router(activity.router)
 
 
 @app.get("/")
