@@ -477,3 +477,40 @@ body {
 
 .timeline-meta   { display: flex; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
 .timeline-detail { font-size: 0.8rem; color: #666; }
+
+/* ── Recommendations ── */
+.recommendations-section { margin-bottom: 2.5rem; }
+
+.rec-header              { margin-bottom: 1.25rem; }
+.rec-header h2           { font-size: 1.2rem; margin-bottom: 0.25rem; }
+
+.rec-subtext {
+    font-size: 0.82rem;
+    color: #555;
+}
+
+.rec-card { border-color: #2a2a3a; }
+.rec-card:hover { border-color: #7b61ff; }
+
+.rec-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7b61ff;
+    margin-bottom: 0.3rem;
+}
+
+.results-section h2 { margin-bottom: 1.25rem; font-size: 1.2rem; }
+
+.rec-empty {
+    padding: 1.5rem;
+    background: #1a1a1a;
+    border: 1px dashed #2a2a2a;
+    border-radius: 8px;
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+.rec-empty a { color: #e94560; text-decoration: none; }
+.rec-empty a:hover { text-decoration: underline; }

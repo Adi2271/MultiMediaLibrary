@@ -42,6 +42,235 @@
             <p class="no-results">No results found for "{{ query }}".</p>
         {% endif %}
 
+        {% extends "base.html" %}
+{% block title %}Search — MediaVault{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <h1>Search & Add</h1>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('search', this)">Search API</button>
+        <button class="tab-btn" onclick="switchTab('manual', this)">Manual Entry</button>
+    </div>
+
+    <!-- ── Search Tab ── -->
+    <div id="tab-search" class="tab-content">
+        <form method="GET" action="/search" class="search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search title..."
+                class="search-input"
+                autofocus
+            />
+            <select name="category" class="search-select">
+                <option value="anime"     {% if category == "anime" %}selected{% endif %}>Anime</option>
+                <option value="movie"     {% if category == "movie" %}selected{% endif %}>Movie</option>
+                <option value="webseries" {% if category == "webseries" %}selected{% endif %}>Webseries</option>
+            </select>
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+
+        {% if error %}
+            <p class="error-msg">{{ error }}</p>
+        {% endif %}
+
+        <!-- Recommendations (shown when no search query) -->
+        {% if recommendations and not query %}
+        <div class="recommendations-section">
+            <div class="rec-header">
+                <h2>Recommended for You</h2>
+                <p class="rec-subtext">
+                    Based on genres from your {{ category }} library
+                </p>
+            </div>
+
+            <div class="results-grid">
+                {% for item in recommendations %}
+                <div class="result-card rec-card">
+                    {% if item.cover_image_url %}
+                        <img src="{{ item.cover_image_url }}"
+                             alt="{{ item.title }}" class="card-cover">
+                    {% else %}
+                        <div class="card-cover card-no-image">No Image</div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <div class="rec-tag">Recommended</div>
+                        <h3 class="card-title">{{ item.title }}</h3>
+
+                        <div class="card-meta">
+                            {% if item.year_released %}<span>{{ item.year_released }}</span>{% endif %}
+                            {% if item.score %}<span>⭐ {{ item.score }}</span>{% endif %}
+                        </div>
+
+                        {% if item.genres %}
+                            <p class="card-genres">{{ item.genres }}</p>
+                        {% endif %}
+
+                        <p class="card-synopsis">
+                            {{ item.synopsis[:120] }}{% if item.synopsis|length > 120 %}...{% endif %}
+                        </p>
+
+                        <button
+                            class="btn-add"
+                            onclick="addToLibrary(this)"
+                            data-title="{{ item.title }}"
+                            data-category="{{ category }}"
+                            data-external-id="{{ item.external_id }}"
+                            data-source-api="{{ item.source_api }}"
+                            data-cover="{{ item.cover_image_url or '' }}"
+                            data-synopsis="{{ item.synopsis | replace('"', '&quot;') }}"
+                            data-year="{{ item.year_released or '' }}"
+                            data-genres="{{ item.genres or '' }}"
+                            data-total="{{ item.total or '' }}"
+                            data-reference-url="{{ item.reference_url or '' }}"
+                        >
+                            + Add to Library
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- No recommendations yet -->
+        {% if not recommendations and not query %}
+        <div class="rec-empty">
+            <p>
+                No recommendations yet — add some
+                <a href="/library">items to your library</a>
+                and rate them to get suggestions.
+            </p>
+        </div>
+        {% endif %}
+
+        {% if query and not results and not error %}
+            <p class="no-results">No results found for "{{ query }}".</p>
+        {% endif %}
+
+        <!-- Search Results -->
+        {% if results %}
+        <div class="results-section">
+            <h2>Search Results</h2>
+            <div class="results-grid">
+                {% for item in results %}
+                <div class="result-card">
+                    {% if item.cover_image_url %}
+                        <img src="{{ item.cover_image_url }}"
+                             alt="{{ item.title }}" class="card-cover">
+                    {% else %}
+                        <div class="card-cover card-no-image">No Image</div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h3 class="card-title">{{ item.title }}</h3>
+
+                        <div class="card-meta">
+                            {% if item.year_released %}<span>{{ item.year_released }}</span>{% endif %}
+                            {% if item.score %}<span>⭐ {{ item.score }}</span>{% endif %}
+                            {% if item.total %}<span>{{ item.total }} ep/ch</span>{% endif %}
+                        </div>
+
+                        {% if item.genres %}
+                            <p class="card-genres">{{ item.genres }}</p>
+                        {% endif %}
+
+                        <p class="card-synopsis">
+                            {{ item.synopsis[:150] }}{% if item.synopsis|length > 150 %}...{% endif %}
+                        </p>
+
+                        <button
+                            class="btn-add"
+                            onclick="addToLibrary(this)"
+                            data-title="{{ item.title }}"
+                            data-category="{{ category }}"
+                            data-external-id="{{ item.external_id }}"
+                            data-source-api="{{ item.source_api }}"
+                            data-cover="{{ item.cover_image_url or '' }}"
+                            data-synopsis="{{ item.synopsis | replace('"', '&quot;') }}"
+                            data-year="{{ item.year_released or '' }}"
+                            data-genres="{{ item.genres or '' }}"
+                            data-total="{{ item.total or '' }}"
+                            data-reference-url="{{ item.reference_url or '' }}"
+                        >
+                            + Add to Library
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ── Manual Entry Tab ── -->
+    <div id="tab-manual" class="tab-content hidden">
+        <div class="manual-form-wrapper">
+            <p class="manual-hint">
+                For Books, Manga, Manhwa, Webnovels — paste a reference link and fill in details manually.
+            </p>
+            <div class="manual-form">
+                <div class="form-row">
+                    <label>Title *</label>
+                    <input type="text" id="m-title" class="search-input"
+                           placeholder="e.g. Solo Leveling"/>
+                </div>
+                <div class="form-row">
+                    <label>Category *</label>
+                    <select id="m-category" class="search-select">
+                        <option value="book">Book</option>
+                        <option value="manga">Manga</option>
+                        <option value="manhwa" selected>Manhwa</option>
+                        <option value="webnovel">Webnovel</option>
+                        <option value="anime">Anime</option>
+                        <option value="movie">Movie</option>
+                        <option value="webseries">Webseries</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Reference URL</label>
+                    <input type="url" id="m-url" class="search-input"
+                           placeholder="e.g. https://myanimelist.net/manga/..."/>
+                </div>
+                <div class="form-row">
+                    <label>Genres</label>
+                    <input type="text" id="m-genres" class="search-input"
+                           placeholder="e.g. Action,Fantasy,Romance"/>
+                </div>
+                <div class="form-row">
+                    <label>Cover Image URL</label>
+                    <input type="url" id="m-cover" class="search-input"
+                           placeholder="Paste image URL (optional)"/>
+                </div>
+                <div class="form-row">
+                    <label>Year Released</label>
+                    <input type="number" id="m-year" class="search-input"
+                           placeholder="e.g. 2020" style="width:150px;"/>
+                </div>
+                <div class="form-row">
+                    <label>Total Chapters/Episodes</label>
+                    <input type="number" id="m-total" class="search-input"
+                           placeholder="Leave blank if ongoing" style="width:150px;"/>
+                </div>
+                <div class="form-row">
+                    <label>Synopsis</label>
+                    <textarea id="m-synopsis" class="search-input manual-textarea"
+                              placeholder="Short description (optional)"></textarea>
+                </div>
+                <button class="btn-primary" onclick="submitManual()">
+                    Add to Library
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
         <div class="results-grid">
             {% for item in results %}
             <div class="result-card">
