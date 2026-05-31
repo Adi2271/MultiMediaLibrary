@@ -12,19 +12,19 @@
 
     <div id="tab-search" class="tab-content">
         <form method="GET" action="/search" class="search-form">
-            <input type="text" name="q" value="{{ query }}"
-                   placeholder="Search title..." class="search-input" autofocus/>
+            <input type="text" name="q" value="{{ query }}" placeholder="Search title..." class="search-input"
+                autofocus />
             <select name="category" class="search-select">
-                <option value="anime"     {% if category == "anime" %}selected{% endif %}>Anime</option>
-                <option value="manga"     {% if category == "manga" %}selected{% endif %}>Manga</option>
-                <option value="movie"     {% if category == "movie" %}selected{% endif %}>Movie</option>
-                <option value="webseries" {% if category == "webseries" %}selected{% endif %}>Webseries</option>
+                <option value="anime" {% if category=="anime" %}selected{% endif %}>Anime</option>
+                <option value="manga" {% if category=="manga" %}selected{% endif %}>Manga</option>
+                <option value="movie" {% if category=="movie" %}selected{% endif %}>Movie</option>
+                <option value="webseries" {% if category=="webseries" %}selected{% endif %}>Webseries</option>
             </select>
             <button type="submit" class="btn-primary">Search</button>
         </form>
 
         {% if error %}
-            <p class="error-msg">{{ error }}</p>
+        <p class="error-msg">{{ error }}</p>
         {% endif %}
 
         {% if recommendations and not query %}
@@ -37,9 +37,9 @@
                 {% for item in recommendations %}
                 <div class="result-card rec-card">
                     {% if item.cover_image_url %}
-                        <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
+                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
                     {% else %}
-                        <div class="card-cover card-no-image">No Image</div>
+                    <div class="card-cover card-no-image">No Image</div>
                     {% endif %}
                     <div class="card-body">
                         <div class="rec-tag">Recommended</div>
@@ -52,19 +52,25 @@
                         <p class="card-synopsis">
                             {{ (item.synopsis or '')[:120] }}{% if (item.synopsis or '')|length > 120 %}...{% endif %}
                         </p>
-                        <button class="btn-add" onclick="addToLibrary(this)"
-                            data-title="{{ item.title }}"
-                            data-category="{{ category }}"
-                            data-external-id="{{ item.external_id }}"
-                            data-source-api="{{ item.source_api }}"
-                            data-cover="{{ item.cover_image_url or '' }}"
-                            data-synopsis="{{ item.synopsis | replace('"', '&quot;') }}"
-                            data-year="{{ item.year_released or '' }}"
-                            data-genres="{{ item.genres or '' }}"
-                            data-total="{{ item.total or '' }}"
-                            data-reference-url="{{ item.reference_url or '' }}">
-                            + Add to Library
-                        </button>
+                        <div class="card-actions">
+                            <button class="btn-info" onclick="openInfo(this)" data-title="{{ item.title }}"
+                                data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                                data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                                data-synopsis="{{ item.synopsis | replace('"', ' &quot;') }}"
+                                data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                                data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}"
+                                data-score="{{ item.score or '' }}">
+                                Info
+                            </button>
+                            <button class="btn-add" onclick="addToLibrary(this)" data-title="{{ item.title }}"
+                                data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                                data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                                data-synopsis="{{ item.synopsis | replace('"', ' &quot;') }}"
+                                data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                                data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}">
+                                + Add
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -82,7 +88,7 @@
         {% endif %}
 
         {% if query and not results and not error %}
-            <p class="no-results">No results found for "{{ query }}".</p>
+        <p class="no-results">No results found for "{{ query }}".</p>
         {% endif %}
 
         {% if results %}
@@ -92,9 +98,9 @@
                 {% for item in results %}
                 <div class="result-card">
                     {% if item.cover_image_url %}
-                        <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
+                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
                     {% else %}
-                        <div class="card-cover card-no-image">No Image</div>
+                    <div class="card-cover card-no-image">No Image</div>
                     {% endif %}
                     <div class="card-body">
                         <h3 class="card-title">{{ item.title }}</h3>
@@ -107,19 +113,25 @@
                         <p class="card-synopsis">
                             {{ (item.synopsis or '')[:150] }}{% if (item.synopsis or '')|length > 150 %}...{% endif %}
                         </p>
-                        <button class="btn-add" onclick="addToLibrary(this)"
-                            data-title="{{ item.title }}"
-                            data-category="{{ category }}"
-                            data-external-id="{{ item.external_id }}"
-                            data-source-api="{{ item.source_api }}"
-                            data-cover="{{ item.cover_image_url or '' }}"
-                            data-synopsis="{{ item.synopsis | replace('"', '&quot;') }}"
-                            data-year="{{ item.year_released or '' }}"
-                            data-genres="{{ item.genres or '' }}"
-                            data-total="{{ item.total or '' }}"
-                            data-reference-url="{{ item.reference_url or '' }}">
-                            + Add to Library
-                        </button>
+                        <div class="card-actions">
+                            <button class="btn-info" onclick="openInfo(this)" data-title="{{ item.title }}"
+                                data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                                data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                                data-synopsis="{{ item.synopsis | replace('"', ' &quot;') }}"
+                                data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                                data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}"
+                                data-score="{{ item.score or '' }}">
+                                Info
+                            </button>
+                            <button class="btn-add" onclick="addToLibrary(this)" data-title="{{ item.title }}"
+                                data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                                data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                                data-synopsis="{{ item.synopsis | replace('"', ' &quot;') }}"
+                                data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                                data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}">
+                                + Add
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -136,20 +148,18 @@
             <div class="manual-form">
                 <div class="form-row">
                     <label>Title *</label>
-                    <input type="text" id="m-title" class="search-input"
-                        placeholder="e.g. Solo Leveling"/>
+                    <input type="text" id="m-title" class="search-input" placeholder="e.g. Solo Leveling" />
                 </div>
                 <div class="form-row">
                     <label>Category *</label>
-                    <select id="m-category" class="search-select"
-                            onchange="updateRefPlaceholder()">
+                    <select id="m-category" class="search-select" onchange="updateRefPlaceholder()">
                         <option value="manhwa" selected>Manhwa</option>
                         <option value="webnovel">Webnovel</option>
                         <option value="book">Book</option>
                         <option value="manga">Manga</option>
                         <option value="anime">Anime</option>
                         <option value="movie">Movie</option>
-                     <option value="webseries">Webseries</option>
+                        <option value="webseries">Webseries</option>
                     </select>
                 </div>
 
@@ -159,12 +169,10 @@
                         <span class="optional-tag">optional</span>
                     </label>
                     <div class="ref-url-row">
-                        <span id="ref-prefix" class="ref-prefix"
-                          onclick="window.open(this.textContent,'_blank')">
-                        https://www.webtoons.com/en/
+                        <span id="ref-prefix" class="ref-prefix" onclick="window.open(this.textContent,'_blank')">
+                            https://www.webtoons.com/en/
                         </span>
-                        <input type="text" id="m-url-slug" class="search-input"
-                           placeholder="paste your link here"/>
+                        <input type="text" id="m-url-slug" class="search-input" placeholder="paste your link here" />
                     </div>
                     <small id="ref-hint" class="ref-hint">
                         Click the prefix to browse the site
@@ -173,11 +181,10 @@
 
                 <div class="form-row">
                     <label>
-                       Genres
-                       <span class="optional-tag">optional</span>
-                 </label>
-                    <input type="text" id="m-genres" class="search-input"
-                         placeholder="e.g. Action,Fantasy,Romance"/>
+                        Genres
+                        <span class="optional-tag">optional</span>
+                    </label>
+                    <input type="text" id="m-genres" class="search-input" placeholder="e.g. Action,Fantasy,Romance" />
                 </div>
 
                 <div class="form-row">
@@ -185,140 +192,136 @@
                         Cover Image URL
                         <span class="optional-tag">optional</span>
                     </label>
-                    <input type="url" id="m-cover" class="search-input"
-                         placeholder="Paste direct image URL"/>
-                <   /div>
+                    <input type="url" id="m-cover" class="search-input" placeholder="Paste direct image URL" />
+                    < /div>
 
-                <div class="form-row">
-                    <label>
-                      Year Released
-                      <span class="optional-tag">optional</span>
-                  </label>
-                  <input type="number" id="m-year" class="search-input"
-                          placeholder="e.g. 2020" style="width:150px;"/>
-             </div>
-            
-             <div class="form-row">
-                 <label>
-                     Total Chapters/Episodes
-                     <span class="optional-tag">optional</span>
-                    </label>
-                 <input type="number" id="m-total" class="search-input"
-                         placeholder="Leave blank if ongoing" style="width:150px;"/>
-             </div>
+                        <div class="form-row">
+                            <label>
+                                Year Released
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="number" id="m-year" class="search-input" placeholder="e.g. 2020"
+                                style="width:150px;" />
+                        </div>
 
-              <div class="form-row">
-                 <label>
-                        Synopsis
-                        <span class="optional-tag">optional</span>
-                    </label>
-                    <textarea id="m-synopsis" class="search-input manual-textarea"
-                              placeholder="Short description"></textarea>
-             </div>
+                        <div class="form-row">
+                            <label>
+                                Total Chapters/Episodes
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="number" id="m-total" class="search-input" placeholder="Leave blank if ongoing"
+                                style="width:150px;" />
+                        </div>
 
-            <button class="btn-primary" onclick="submitManual()">
-                Add to Library
-            </button>
+                        <div class="form-row">
+                            <label>
+                                Synopsis
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <textarea id="m-synopsis" class="search-input manual-textarea"
+                                placeholder="Short description"></textarea>
+                        </div>
 
-        </div>
-    </div>
+                        <button class="btn-primary" onclick="submitManual()">
+                            Add to Library
+                        </button>
 
-    
-    <div id="tab-manual" class="tab-content hidden">
-    <div class="manual-form-wrapper">
-        <p class="manual-hint">
-            For Manhwa, Books, Webnovels and anything not available via search.
-        </p>
-        <div class="manual-form">
-
-            <div class="form-row">
-                <label>Title *</label>
-                <input type="text" id="m-title" class="search-input"
-                       placeholder="e.g. Solo Leveling"/>
-            </div>
-
-            <div class="form-row">
-                <label>Category *</label>
-                <select id="m-category" class="search-select"
-                        onchange="updateRefPlaceholder()">
-                    <option value="manhwa" selected>Manhwa</option>
-                    <option value="webnovel">Webnovel</option>
-                    <option value="book">Book</option>
-                    <option value="manga">Manga</option>
-                    <option value="anime">Anime</option>
-                    <option value="movie">Movie</option>
-                    <option value="webseries">Webseries</option>
-                </select>
-            </div>
-
-            <div class="form-row">
-                <label>
-                    Reference URL
-                    <span class="optional-tag">optional</span>
-                </label>
-                <div class="ref-url-row">
-                    <span id="ref-prefix" class="ref-prefix"
-                          onclick="window.open(this.textContent,'_blank')">
-                        https://www.webtoons.com/en/
-                    </span>
-                    <input type="text" id="m-url-slug" class="search-input"
-                           placeholder="paste your link here"/>
                 </div>
-                <small id="ref-hint" class="ref-hint">
-                    Click the prefix to browse the site
-                </small>
             </div>
 
-            <div class="form-row">
-                <label>
-                    Genres
-                    <span class="optional-tag">optional</span>
-                </label>
-                <input type="text" id="m-genres" class="search-input"
-                       placeholder="e.g. Action,Fantasy,Romance"/>
+
+            <div id="tab-manual" class="tab-content hidden">
+                <div class="manual-form-wrapper">
+                    <p class="manual-hint">
+                        For Manhwa, Books, Webnovels and anything not available via search.
+                    </p>
+                    <div class="manual-form">
+
+                        <div class="form-row">
+                            <label>Title *</label>
+                            <input type="text" id="m-title" class="search-input" placeholder="e.g. Solo Leveling" />
+                        </div>
+
+                        <div class="form-row">
+                            <label>Category *</label>
+                            <select id="m-category" class="search-select" onchange="updateRefPlaceholder()">
+                                <option value="manhwa" selected>Manhwa</option>
+                                <option value="webnovel">Webnovel</option>
+                                <option value="book">Book</option>
+                                <option value="manga">Manga</option>
+                                <option value="anime">Anime</option>
+                                <option value="movie">Movie</option>
+                                <option value="webseries">Webseries</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Reference URL
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <div class="ref-url-row">
+                                <span id="ref-prefix" class="ref-prefix"
+                                    onclick="window.open(this.textContent,'_blank')">
+                                    https://www.webtoons.com/en/
+                                </span>
+                                <input type="text" id="m-url-slug" class="search-input"
+                                    placeholder="paste your link here" />
+                            </div>
+                            <small id="ref-hint" class="ref-hint">
+                                Click the prefix to browse the site
+                            </small>
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Genres
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="text" id="m-genres" class="search-input"
+                                placeholder="e.g. Action,Fantasy,Romance" />
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Cover Image URL
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="url" id="m-cover" class="search-input" placeholder="Paste direct image URL" />
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Year Released
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="number" id="m-year" class="search-input" placeholder="e.g. 2020"
+                                style="width:150px;" />
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Total Chapters/Episodes
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <input type="number" id="m-total" class="search-input" placeholder="Leave blank if ongoing"
+                                style="width:150px;" />
+                        </div>
+
+                        <div class="form-row">
+                            <label>
+                                Synopsis
+                                <span class="optional-tag">optional</span>
+                            </label>
+                            <textarea id="m-synopsis" class="search-input manual-textarea"
+                                placeholder="Short description"></textarea>
+                        </div>
+
+                        <button class="btn-primary" onclick="submitManual()">
+                            Add to Library
+                        </button>
+
+                    </div>
+                </div>
             </div>
-
-            <div class="form-row">
-                <label>
-                    Cover Image URL
-                    <span class="optional-tag">optional</span>
-                </label>
-                <input type="url" id="m-cover" class="search-input"
-                       placeholder="Paste direct image URL"/>
-            </div>
-
-            <div class="form-row">
-                <label>
-                    Year Released
-                    <span class="optional-tag">optional</span>
-                </label>
-                <input type="number" id="m-year" class="search-input"
-                       placeholder="e.g. 2020" style="width:150px;"/>
-            </div>
-
-            <div class="form-row">
-                <label>
-                    Total Chapters/Episodes
-                    <span class="optional-tag">optional</span>
-                </label>
-                <input type="number" id="m-total" class="search-input"
-                       placeholder="Leave blank if ongoing" style="width:150px;"/>
-            </div>
-
-            <div class="form-row">
-                <label>
-                    Synopsis
-                    <span class="optional-tag">optional</span>
-                </label>
-                <textarea id="m-synopsis" class="search-input manual-textarea"
-                          placeholder="Short description"></textarea>
-            </div>
-
-            <button class="btn-primary" onclick="submitManual()">
-                Add to Library
-            </button>
-
-        </div>
-    </div>
-</div>
-{% endblock %}
+            {% endblock %}

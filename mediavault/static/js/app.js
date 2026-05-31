@@ -197,3 +197,110 @@ document.addEventListener("DOMContentLoaded", () => {
         updateRefPlaceholder();
     }
 });
+
+// ── Modal data store ───────────────────────────────────────────────────────
+let _modalItem = {};
+
+// ── Open modal with card data ──────────────────────────────────────────────
+function openInfo(btn) {
+    _modalItem = {
+        title:         btn.dataset.title,
+        category:      btn.dataset.category,
+        external_id:   btn.dataset.externalId   || null,
+        source_api:    btn.dataset.sourceApi     || null,
+        cover:         btn.dataset.cover         || null,
+        synopsis:      btn.dataset.synopsis      || "",
+        year:          btn.dataset.year          || "",
+        genres:        btn.dataset.genres        || "",
+        total:         btn.dataset.total         || "",
+        reference_url: btn.dataset.referenceUrl  || null,
+        score:         btn.dataset.score         || "",
+    };
+
+    document.getElementById("modal-title").textContent    = _modalItem.title;
+    document.getElementById("modal-category").textContent = _modalItem.category;
+    document.getElementById("modal-synopsis").textContent = _modalItem.synopsis || "No synopsis available.";
+    document.getElementById("modal-genres").textContent   = _modalItem.genres;
+    document.getElementById("modal-year").textContent     = _modalItem.year;
+    document.getElementById("modal-score").textContent    = _modalItem.score ? `⭐ ${_modalItem.score}` : "";
+    document.getElementById("modal-total").textContent    = _modalItem.total ? `${_modalItem.total} ep/ch` : "";
+
+    const cover = document.getElementById("modal-cover");
+    if (_modalItem.cover) {
+        cover.src             = _modalItem.cover;
+        cover.style.display   = "block";
+    } else {
+        cover.style.display   = "none";
+    }
+
+    const refLink = document.getElementById("modal-ref");
+    if (_modalItem.reference_url) {
+        refLink.href          = _modalItem.reference_url;
+        refLink.style.display = "inline";
+    } else {
+        refLink.style.display = "none";
+    }
+
+    document.getElementById("info-modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+
+// ── Close modal ────────────────────────────────────────────────────────────
+function closeInfoModal() {
+    document.getElementById("info-modal").classList.remove("open");
+    document.body.style.overflow = "";
+}
+
+// Close when clicking outside the box
+function closeModal(event) {
+    if (event.target === document.getElementById("info-modal")) {
+        closeInfoModal();
+    }
+}
+
+// Close on Escape key
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeInfoModal();
+});
+
+// ── Add to library from modal ──────────────────────────────────────────────
+async function addFromModal() {
+    const btn     = document.getElementById("modal-add-btn");
+    btn.disabled  = true;
+    btn.textContent = "Adding...";
+
+    const payload = {
+        title:           _modalItem.title,
+        category:        _modalItem.category,
+        external_id:     _modalItem.external_id  || null,
+        source_api:      _modalItem.source_api    || null,
+        cover_image_url: _modalItem.cover         || null,
+        synopsis:        _modalItem.synopsis      || null,
+        year_released:   _modalItem.year          ? parseInt(_modalItem.year)  : null,
+        genres:          _modalItem.genres        || null,
+        total:           _modalItem.total         ? parseInt(_modalItem.total) : null,
+        reference_url:   _modalItem.reference_url || null,
+    };
+
+    try {
+        const res  = await fetch("/api/library", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            btn.textContent = "✓ Added";
+            showToast("Added to library!", "success");
+        } else {
+            btn.textContent = "Already Added";
+            btn.disabled    = false;
+            showToast(data.detail || "Already in library.", "error");
+        }
+    } catch {
+        btn.disabled    = false;
+        btn.textContent = "+ Add to Library";
+        showToast("Something went wrong.", "error");
+    }
+}
