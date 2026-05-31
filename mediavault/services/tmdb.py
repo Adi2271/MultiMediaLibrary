@@ -8,6 +8,8 @@ TMDB_BASE  = "https://api.themoviedb.org/3"
 TMDB_IMAGE = "https://image.tmdb.org/t/p/w500"
 API_KEY    = os.getenv("TMDB_API_KEY")
 
+# In-memory cache — fetched once, reused forever
+_genre_cache: dict[str, dict] = {}
 
 async def search_movies(query: str) -> list[dict]:
     return await _tmdb_search(query, category="movie")
@@ -64,6 +66,10 @@ async def _tmdb_search(query: str, category: str) -> list[dict]:
 
 
 async def _get_genre_map(category: str) -> dict:
+    # Return cached version if available
+    if category in _genre_cache:
+        return _genre_cache[category]
+
     endpoint = "genre/movie/list" if category == "movie" else "genre/tv/list"
     url      = f"{TMDB_BASE}/{endpoint}"
     params   = {"api_key": API_KEY}
@@ -72,5 +78,7 @@ async def _get_genre_map(category: str) -> dict:
         response = await client.get(url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-
-    return {g["id"]: g["name"] for g in data.get("genres", [])}
+        
+    genre_map = {g["id"]: g["name"] for g in data.get("genres", [])}
+    _genre_cache[category] = genre_map  # Cache it
+    return genre_map
