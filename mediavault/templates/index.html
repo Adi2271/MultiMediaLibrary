@@ -134,9 +134,27 @@
             </p>
             <div class="manual-form">
                 <div class="form-row">
-                    <label>Title *</label>
-                    <input type="text" id="m-title" class="search-input" placeholder="e.g. Solo Leveling"/>
+                    <label>Category *</label>
+                    <select id="m-category" class="search-select" onchange="updateRefPlaceholder()">
+                        <option value="book">Book</option>
+                        <option value="manga">Manga</option>
+                        <option value="manhwa" selected>Manhwa</option>
+                        <option value="webnovel">Webnovel</option>
+                        <option value="anime">Anime</option>
+                        <option value="movie">Movie</option>
+                        <option value="webseries">Webseries</option>
+                    </select>
                 </div>
+
+                <div class="form-row">
+                    <label>Reference URL</label>
+                    <div class="ref-url-row">
+                        <span id="ref-prefix" class="ref-prefix">https://www.webtoons.com/</span>
+                        <input type="text" id="m-url-slug" class="search-input"
+                            placeholder="paste your link here"/>
+                    </div>
+                    <small id="ref-hint" class="ref-hint">Tap the prefix to open the site</small>
+                </div>  
                 <div class="form-row">
                     <label>Category *</label>
                     <select id="m-category" class="search-select">

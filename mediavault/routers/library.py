@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from database import get_db
-from models import MediaItem, ActivityLog, MediaCategory, MediaStatus
+from models import MediaItem, ActivityLog, MediaCategory, MediaStatus, RemovalLog
 from schemas import MediaItemCreate, MediaItemUpdate
 from typing import Optional
 import json
@@ -157,6 +157,20 @@ async def delete_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found.")
 
+    # Save removal record before deleting
+    removal = RemovalLog(
+        title    = item.title,
+        category = item.category.value,
+        action   = "Removed",
+        detail   = f"Removed {item.title} from library.",
+    )
+    db.add(removal)
+    
+    # Log removal BEFORE deleting (cascade will kill logs after)
+    # So we create a standalone log with no FK — store title in detail
+    # Instead: just delete quietly but keep a ghost log approach
+    # Simplest: log it first, then delete logs, then delete item
+    
     await db.execute(delete(ActivityLog).where(ActivityLog.media_item_id == item_id))
     await db.execute(delete(MediaItem).where(MediaItem.id == item_id))
     await db.commit()

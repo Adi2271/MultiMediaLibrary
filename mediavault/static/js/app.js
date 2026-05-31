@@ -131,7 +131,7 @@ async function submitManual() {
         title:           title,
         category:        cat,
         source_api:      "manual",
-        reference_url:   document.getElementById("m-url").value.trim()    || null,
+        reference_url: document.getElementById("m-url-slug")?.value.trim() || null,
         genres:          document.getElementById("m-genres").value.trim()  || null,
         cover_image_url: document.getElementById("m-cover").value.trim()   || null,
         year_released:   document.getElementById("m-year").value
@@ -165,3 +165,35 @@ async function submitManual() {
         showToast("Something went wrong.", "error");
     }
 }
+
+const REF_SITES = {
+    manga:    { prefix: "https://myanimelist.net/manga/",    label: "MAL Manga" },
+    manhwa:   { prefix: "https://www.webtoons.com/en/",      label: "Webtoons" },
+    webnovel: { prefix: "https://www.webnovel.com/book/",    label: "Webnovel" },
+    book:     { prefix: "https://www.goodreads.com/book/",   label: "Goodreads" },
+    anime:    { prefix: "https://myanimelist.net/anime/",    label: "MAL Anime" },
+    movie:    { prefix: "https://www.themoviedb.org/movie/", label: "TMDB Movie" },
+    webseries:{ prefix: "https://www.themoviedb.org/tv/",    label: "TMDB TV" },
+};
+
+function updateRefPlaceholder() {
+    const cat    = document.getElementById("m-category").value;
+    const site   = REF_SITES[cat];
+    const prefix = document.getElementById("ref-prefix");
+    const hint   = document.getElementById("ref-hint");
+    if (site && prefix) {
+        prefix.textContent = site.prefix;
+        prefix.onclick     = () => window.open(site.prefix, "_blank");
+        if (hint) hint.textContent = `Click the prefix to browse ${site.label}`;
+    }
+}
+
+// Update submitManual to read from slug input
+// Inside submitManual, replace reference_url line with:
+// reference_url: document.getElementById("m-url-slug")?.value.trim() || null,
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("m-category")) {
+        updateRefPlaceholder();
+    }
+});

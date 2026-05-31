@@ -14,6 +14,11 @@ async def timeline_page(
     request: Request,
     db:      AsyncSession = Depends(get_db),
 ):
+    
+    # Group logs by date
+    from collections import defaultdict
+    from models import RemovalLog
+    
     # Fetch all logs joined with media item info, newest first
     result = await db.execute(
         select(ActivityLog, MediaItem)
@@ -22,10 +27,15 @@ async def timeline_page(
         .limit(100)
     )
     rows = result.all()
-
-    # Group logs by date
-    from collections import defaultdict
+    
+    # Fetch removal logs
+    removal_result = await db.execute(
+        select(RemovalLog).order_by(RemovalLog.timestamp.desc()).limit(50)
+    )
+    removals = removal_result.scalars().all()
+    
     grouped = defaultdict(list)
+    
     for log, item in rows:
         date_key = log.timestamp.strftime("%B %d, %Y")
         grouped[date_key].append({
@@ -39,6 +49,26 @@ async def timeline_page(
             "status":    item.status.value,
         })
 
+    for removal in removals:
+        date_key = removal.timestamp.strftime("%B %d, %Y")
+        grouped[date_key].append({
+            "action":   "Removed",
+            "detail":   removal.detail,
+            "time":     removal.timestamp.strftime("%I:%M %p"),
+            "item_id":  None,
+            "title":    removal.title,
+            "category": removal.category,
+            "cover":    None,
+            "status":   "dropped",
+        })
+
+    # Sort each day's entries by time
+    sorted_grouped = dict(
+        sorted(grouped.items(),
+               key=lambda x: x[0],
+               reverse=True)
+    )
+    
     return templates.TemplateResponse("timeline.html", {
         "request": request,
         "grouped": dict(grouped),

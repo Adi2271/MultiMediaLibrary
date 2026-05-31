@@ -5,6 +5,13 @@ from services.jikan import search_anime
 from services.tmdb import search_movies, search_webseries
 from collections import Counter
 
+JIKAN_GENRE_IDS = {
+    "Action": 1, "Adventure": 2, "Comedy": 4, "Drama": 8,
+    "Fantasy": 10, "Horror": 14, "Mystery": 7, "Romance": 22,
+    "Sci-Fi": 24, "Slice of Life": 36, "Sports": 30,
+    "Supernatural": 37, "Thriller": 41, "Psychological": 40,
+    "Shounen": 27, "Seinen": 42, "Mecha": 18, "Music": 19,
+}
 
 async def get_recommendations(
     db:       AsyncSession,
@@ -57,7 +64,43 @@ async def get_recommendations(
     # ── Step 4: Fetch from API ─────────────────────────────────────────────
     try:
         if category == "anime":
-            api_results = await search_anime(query)
+            # Map top genre names to Jikan genre IDs
+            genre_ids = [
+                str(JIKAN_GENRE_IDS[g])
+                for g in top_genres
+                if g in JIKAN_GENRE_IDS
+            ]
+            if genre_ids:
+                import httpx
+                # Use top anime filtered by genre, ordered by popularity
+                url = "https://api.jikan.moe/v4/anime"
+                params = {
+                    "genres": ",".join(genre_ids[:2]),
+                    "order_by": "popularity",
+                    "sort": "asc",
+                    "limit": 12,
+                    "sfw": True,
+                }
+                async with httpx.AsyncClient() as client:
+                    resp = await client.get(url, params=params, timeout=10)
+                    resp.raise_for_status()
+                    data = resp.json()
+                api_results = []
+                for item in data.get("data", []):
+                    api_results.append({
+                        "external_id":     str(item["mal_id"]),
+                        "source_api":      "jikan",
+                        "title":           item.get("title_english") or item.get("title", ""),
+                        "cover_image_url": item.get("images", {}).get("jpg", {}).get("image_url"),
+                        "synopsis":        item.get("synopsis") or "",
+                        "year_released":   item.get("year"),
+                        "genres":          ",".join(g["name"] for g in item.get("genres", [])),
+                        "total":           item.get("episodes"),
+                        "reference_url":   item.get("url", ""),
+                        "score":           item.get("score"),
+                    })
+            else:
+                api_results = await search_anime(top_genres[0] if top_genres else "popular")
         elif category == "movie":
             api_results = await search_movies(query)
         elif category == "webseries":

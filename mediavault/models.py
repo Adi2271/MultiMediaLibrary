@@ -66,3 +66,14 @@ class ActivityLog(Base):
     timestamp       = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     media_item      = relationship("MediaItem", back_populates="activity_logs")
+    
+class RemovalLog(Base):
+    __tablename__ = "removal_logs"
+
+    id        = Column(Integer, primary_key=True, index=True)
+    title     = Column(String(500), nullable=False)
+    category  = Column(String(50),  nullable=False)
+    action    = Column(String(100), default="Removed")
+    detail    = Column(Text, nullable=True)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    

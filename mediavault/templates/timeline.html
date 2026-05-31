@@ -39,9 +39,11 @@
                         <span class="timeline-time">{{ log.time }}</span>
                     </div>
 
-                    <a href="/library/{{ log.item_id }}" class="timeline-title">
-                        {{ log.title }}
-                    </a>
+                    {% if log.item_id %}
+                        <a href="/library/{{ log.item_id }}" class="timeline-title">{{ log.title }}</a>
+                    {% else %}
+                        <span class="timeline-title" style="cursor:default;">{{ log.title }}</span>
+                    {% endif %}
 
                     <div class="timeline-meta">
                         <span class="category-badge">{{ log.category.title() }}</span>

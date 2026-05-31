@@ -514,3 +514,10 @@ body {
 }
 .rec-empty a { color: #e94560; text-decoration: none; }
 .rec-empty a:hover { text-decoration: underline; }
+
+.ref-url-row  { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.ref-prefix   {
+    font-size: 0.78rem; color: #e94560; white-space: nowrap;
+    cursor: pointer; text-decoration: underline;
+}
+.ref-hint     { font-size: 0.75rem; color: #555; margin-top: 0.25rem; }
