@@ -1,22 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Library — MediaVault{% endblock %}
+{% block title %}My Library — MediaVault{% endblock %}
 
 {% block content %}
-<div class="library-container">
-    <h1>My Library</h1>
-
-    <!-- Filters -->
-    <form method="GET" action="/library" class="filter-form">
-        <select name="status" class="search-select" onchange="this.form.submit()">
-            <option value="">All Statuses</option>
+<div class="page-header">
+    <h1 class="page-title">My Library</h1>
+    <form method="GET" action="/library" class="filter-row">
+        <select name="status" class="filter-select" onchange="this.form.submit()">
+            <option value="">All Status</option>
             {% for s in statuses %}
                 <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>
                     {{ s.replace('_', ' ').title() }}
                 </option>
             {% endfor %}
         </select>
-
-        <select name="category" class="search-select" onchange="this.form.submit()">
+        <select name="category" class="filter-select" onchange="this.form.submit()">
             <option value="">All Categories</option>
             {% for c in categories %}
                 <option value="{{ c }}" {% if selected_cat == c %}selected{% endif %}>
@@ -24,56 +21,42 @@
                 </option>
             {% endfor %}
         </select>
-
         {% if selected_status or selected_cat %}
-            <a href="/library" class="btn-clear">Clear Filters</a>
+            <a href="/library" class="btn-clear">Clear</a>
         {% endif %}
     </form>
+</div>
 
-    {% if not items %}
-        <p class="no-results">
-            Nothing here yet.
-            <a href="/search">Search and add something.</a>
-        </p>
-    {% endif %}
+{% if not items %}
+    <div class="empty-state glass-card">
+        <p>Nothing here yet. <a href="/search">Search and add something.</a></p>
+    </div>
+{% endif %}
 
-    <div class="results-grid">
-        {% for item in items %}
-        <div class="result-card">
-            <a href="/library/{{ item.id }}">
-                {% if item.cover_image_url %}
-                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="card-cover">
-                {% else %}
-                    <div class="card-cover card-no-image">No Image</div>
-                {% endif %}
-            </a>
-
-            <div class="card-body">
-                <h3 class="card-title">
-                    <a href="/library/{{ item.id }}" class="card-link">{{ item.title }}</a>
-                </h3>
-
-                <div class="card-meta">
-                    <span class="status-badge status-{{ item.status.value }}">
-                        {{ item.status.value.replace('_', ' ').title() }}
-                    </span>
-                    <span class="category-badge">{{ item.category.value.title() }}</span>
-                </div>
-
-                {% if item.genres %}
-                    <p class="card-genres">{{ item.genres }}</p>
-                {% endif %}
-
-                <p class="card-progress">
-                    Progress: {{ item.progress }}{% if item.total %}/{{ item.total }}{% endif %}
-                </p>
-
-                {% if item.user_rating %}
-                    <p class="card-meta">⭐ {{ item.user_rating }}/10</p>
-                {% endif %}
+<div class="library-grid">
+    {% for item in items %}
+    <a href="/library/{{ item.id }}" class="lib-card glass-card">
+        <div class="lib-card-img-wrap">
+            {% if item.cover_image_url %}
+                <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="lib-cover">
+            {% else %}
+                <div class="lib-cover lib-no-cover">?</div>
+            {% endif %}
+            <div class="lib-card-overlay">
+                <span class="status-badge status-{{ item.status.value }}">
+                    {{ item.status.value.replace('_', ' ').title() }}
+                </span>
             </div>
         </div>
-        {% endfor %}
-    </div>
+        <div class="lib-card-body">
+            <span class="category-badge">{{ item.category.value.title() }}</span>
+            <h3 class="lib-card-title">{{ item.title }}</h3>
+            <div class="lib-card-meta">
+                <span>{{ item.progress }}{% if item.total %}/{{ item.total }}{% endif %}</span>
+                {% if item.user_rating %}<span class="accent-text">⭐ {{ item.user_rating }}</span>{% endif %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
 </div>
 {% endblock %}

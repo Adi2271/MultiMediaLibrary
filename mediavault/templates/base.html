@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MediaVault{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 
     <nav class="navbar">
-        <a href="/" class="nav-brand">MediaVault</a>
+        <a href="/" class="nav-brand">MV</a>
         <div class="nav-links">
-            <a href="/search">Search</a>
-            <a href="/library">Library</a>
-            <a href="/timeline">Timeline</a>
+            <a href="/search" {% if request.url.path == '/search' %}class="active"{% endif %}>Search & Add</a>
+            <a href="/library" {% if request.url.path == '/library' %}class="active"{% endif %}>My Library</a>
+            <a href="/timeline" {% if request.url.path == '/timeline' %}class="active"{% endif %}>Activity Timeline</a>
         </div>
     </nav>
 
@@ -22,43 +25,35 @@
     </main>
 
     <!-- Info Modal -->
-<div id="info-modal" class="modal-overlay" onclick="closeModal(event)">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeInfoModal()">✕</button>
-
-        <div class="modal-inner">
-            <div class="modal-left">
-                <img id="modal-cover" src="" alt="" class="modal-cover"/>
-            </div>
-
-            <div class="modal-right">
-                <div class="modal-meta-top">
-                    <span id="modal-category" class="category-badge"></span>
-                    <span id="modal-year" class="card-meta"></span>
-                    <span id="modal-score" class="card-meta"></span>
-                    <span id="modal-total" class="card-meta"></span>
+    <div id="info-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeInfoModal()">✕</button>
+            <div class="modal-inner">
+                <div class="modal-left">
+                    <img id="modal-cover" src="" alt="" class="modal-cover"/>
                 </div>
-
-                <h2 id="modal-title" class="modal-title"></h2>
-
-                <p id="modal-genres" class="card-genres"></p>
-
-                <p id="modal-synopsis" class="modal-synopsis"></p>
-
-                <div class="modal-actions">
-                    <a id="modal-ref" href="#" target="_blank"
-                       class="ref-link" style="display:none;">
-                        View on Source ↗
-                    </a>
-                    <button id="modal-add-btn" class="btn-primary"
-                            onclick="addFromModal()">
-                        + Add to Library
-                    </button>
+                <div class="modal-right">
+                    <div class="modal-meta-top">
+                        <span id="modal-category" class="category-badge"></span>
+                        <span id="modal-year" class="meta-pill"></span>
+                        <span id="modal-score" class="meta-pill accent"></span>
+                        <span id="modal-total" class="meta-pill"></span>
+                    </div>
+                    <h2 id="modal-title" class="modal-title"></h2>
+                    <p id="modal-genres" class="modal-genres"></p>
+                    <p id="modal-synopsis" class="modal-synopsis"></p>
+                    <div class="modal-actions">
+                        <a id="modal-ref" href="#" target="_blank"
+                           class="ref-link" style="display:none;">View on Source ↗</a>
+                        <button id="modal-add-btn" class="btn-primary"
+                                onclick="addFromModal()">+ Add to Library</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div id="toast" class="toast"></div>
 
     <script src="/static/js/app.js"></script>
 </body>

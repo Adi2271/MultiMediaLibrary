@@ -2,119 +2,92 @@
 {% block title %}{{ item.title }} — MediaVault{% endblock %}
 
 {% block content %}
-<div class="detail-container">
-
-    <div class="detail-header">
+<div class="detail-wrap">
+    <div class="detail-hero glass-card">
         {% if item.cover_image_url %}
             <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="detail-cover">
         {% endif %}
-
         <div class="detail-info">
-            <h1>{{ item.title }}</h1>
-
-            <div class="card-meta" style="margin: 0.5rem 0;">
+            <div class="detail-badges">
+                <span class="category-badge">{{ item.category.value.title() }}</span>
                 <span class="status-badge status-{{ item.status.value }}">
                     {{ item.status.value.replace('_', ' ').title() }}
                 </span>
-                <span class="category-badge">{{ item.category.value.title() }}</span>
-                {% if item.year_released %}<span>{{ item.year_released }}</span>{% endif %}
-                {% if item.user_rating %}<span>⭐ {{ item.user_rating }}/10</span>{% endif %}
+                {% if item.year_released %}<span class="meta-pill">{{ item.year_released }}</span>{% endif %}
+                {% if item.user_rating %}<span class="meta-pill accent">⭐ {{ item.user_rating }}/10</span>{% endif %}
             </div>
-
+            <h1 class="detail-title">{{ item.title }}</h1>
             {% if item.genres %}
-                <p class="card-genres">{{ item.genres }}</p>
+                <p class="detail-genres accent-text">{{ item.genres }}</p>
             {% endif %}
-
             {% if item.synopsis %}
                 <p class="detail-synopsis">{{ item.synopsis }}</p>
             {% endif %}
-
             {% if item.reference_url %}
-                <a href="{{ item.reference_url }}" target="_blank" class="ref-link">
-                    View on Source ↗
-                </a>
+                <a href="{{ item.reference_url }}" target="_blank" class="ref-link">View on Source ↗</a>
             {% endif %}
         </div>
     </div>
 
-    <!-- Update Panel -->
-    <div class="update-panel">
-        <h2>Update</h2>
-
-        <div class="update-row">
-            <label>Status</label>
-            <select id="status-select" class="search-select">
-                {% for s in statuses %}
-                    <option value="{{ s }}" {% if item.status.value == s %}selected{% endif %}>
-                        {{ s.replace('_', ' ').title() }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="update-row">
-            <label>Progress</label>
-            <div class="progress-row">
-                <input
-                    type="number"
-                    id="progress-input"
-                    value="{{ item.progress }}"
-                    min="0"
-                    {% if item.total %}max="{{ item.total }}"{% endif %}
-                    class="search-input"
-                    style="width: 100px;"
-                />
-                {% if item.total %}
-                    <span style="color:#888;">/ {{ item.total }}</span>
-                {% endif %}
+    <div class="detail-lower">
+        <div class="update-panel glass-card">
+            <h2 class="panel-title">Update Progress</h2>
+            <div class="update-row">
+                <label>Status</label>
+                <select id="status-select" class="filter-select">
+                    {% for s in statuses %}
+                        <option value="{{ s }}" {% if item.status.value == s %}selected{% endif %}>
+                            {{ s.replace('_', ' ').title() }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="update-row">
+                <label>Progress</label>
+                <div class="progress-row">
+                    <input type="number" id="progress-input"
+                           value="{{ item.progress }}" min="0"
+                           {% if item.total %}max="{{ item.total }}"{% endif %}
+                           class="num-input"/>
+                    {% if item.total %}
+                        <span class="meta-pill">/ {{ item.total }}</span>
+                        {% if not item.total %}
+                            <span class="ongoing-tag">Ongoing</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="ongoing-tag">Ongoing</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="update-row">
+                <label>Rating</label>
+                <input type="number" id="rating-input"
+                       value="{{ item.user_rating or '' }}"
+                       min="0" max="10" step="0.5" class="num-input"/>
+                <span class="meta-pill">/ 10</span>
+            </div>
+            <div class="update-actions">
+                <button class="btn-primary" onclick="updateItem({{ item.id }})">Save</button>
+                <button class="btn-delete" onclick="deleteItem({{ item.id }})">Remove</button>
             </div>
         </div>
 
-        <div class="update-row">
-            <label>Rating (0–10)</label>
-            <input
-                type="number"
-                id="rating-input"
-                value="{{ item.user_rating or '' }}"
-                min="0" max="10" step="0.5"
-                class="search-input"
-                style="width: 100px;"
-            />
+        {% if logs %}
+        <div class="activity-panel glass-card">
+            <h2 class="panel-title">Activity</h2>
+            <ul class="activity-list">
+                {% for log in logs %}
+                <li class="activity-item">
+                    <span class="activity-action action-text-{{ log.action | lower | replace(' ', '-') }}">
+                        {{ log.action }}
+                    </span>
+                    <span class="activity-detail">{{ log.detail }}</span>
+                    <span class="activity-time">{{ log.timestamp.strftime('%b %d, %Y') }}</span>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-
-        <button
-            class="btn-primary"
-            onclick="updateItem({{ item.id }})"
-        >
-            Save Changes
-        </button>
-
-        <button
-            class="btn-delete"
-            onclick="deleteItem({{ item.id }})"
-            style="margin-left: 0.75rem;"
-        >
-            Remove from Library
-        </button>
+        {% endif %}
     </div>
-
-    <!-- Activity Log -->
-    {% if logs %}
-    <div class="activity-section">
-        <h2>Activity</h2>
-        <ul class="activity-list">
-            {% for log in logs %}
-            <li class="activity-item">
-                <span class="activity-action">{{ log.action }}</span>
-                <span class="activity-detail">{{ log.detail }}</span>
-                <span class="activity-time">
-                    {{ log.timestamp.strftime('%b %d, %Y') }}
-                </span>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
 </div>
 {% endblock %}

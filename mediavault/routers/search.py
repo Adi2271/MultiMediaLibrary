@@ -70,3 +70,28 @@ async def search_api(
         return {"results": results, "query": q, "category": category}
     except Exception as e:
         return {"error": str(e), "results": []}
+    
+@router.get("/api/tmdb-trending/{media_type}")
+async def tmdb_trending(media_type: str):
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key = os.getenv("TMDB_API_KEY")
+    url     = f"https://api.themoviedb.org/3/trending/{media_type}/week"
+    params  = {"api_key": api_key}
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        resp = await client.get(url, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+    results = []
+    for item in data.get("results", [])[:10]:
+        poster = item.get("poster_path")
+        results.append({
+            "title": item.get("title") or item.get("name", ""),
+            "score": item.get("vote_average"),
+            "image": f"https://image.tmdb.org/t/p/w92{poster}" if poster else None,
+            "year":  (item.get("release_date") or item.get("first_air_date") or "")[:4],
+        })
+    return {"results": results}
