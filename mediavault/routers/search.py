@@ -32,7 +32,7 @@ async def search_page(
             elif category == "webseries":
                 results = await search_webseries(q)
         except Exception as e:
-            error = f"Search failed: {str(e)}"
+            error = f"Search failed — API may be rate limited. Please try again in a moment."
     else:
         # No search query — show recommendations instead
         try:

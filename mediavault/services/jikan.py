@@ -1,16 +1,27 @@
 import httpx
+import asyncio
 
 JIKAN_BASE = "https://api.jikan.moe/v4"
 
 
-async def search_anime(query: str) -> list[dict]:
-    url = f"{JIKAN_BASE}/anime"
+async def search_anime(query: str, retries: int = 2) -> list[dict]:
+    url    = f"{JIKAN_BASE}/anime"
     params = {"q": query, "limit": 12, "sfw": True}
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+    for attempt in range(retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=12) as client:
+                response = await client.get(url, params=params)
+                response.raise_for_status()
+                data = response.json()
+                break
+        except (httpx.TimeoutException, httpx.HTTPStatusError):
+            if attempt < retries:
+                await asyncio.sleep(1.2)  # Wait before retry
+                continue
+            return []
+        except Exception:
+            return []
 
     results = []
     for item in data.get("data", []):
@@ -19,7 +30,7 @@ async def search_anime(query: str) -> list[dict]:
             "source_api":      "jikan",
             "title":           item.get("title_english") or item.get("title", ""),
             "cover_image_url": item.get("images", {}).get("jpg", {}).get("image_url"),
-            "synopsis":        item.get("synopsis", ""),
+            "synopsis":        item.get("synopsis") or "",
             "year_released":   item.get("year"),
             "genres":          ",".join(g["name"] for g in item.get("genres", [])),
             "total":           item.get("episodes"),
