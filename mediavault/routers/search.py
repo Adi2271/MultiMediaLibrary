@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 from database import get_db
-from services.jikan import search_anime
+from services.jikan import search_anime, search_manga
 from services.tmdb import search_movies, search_webseries
 from services.recommender import get_recommendations
 
@@ -27,6 +27,8 @@ async def search_page(
         try:
             if category == "anime":
                 results = await search_anime(q)
+            elif category == "manga":
+                results = await search_manga(q)
             elif category == "movie":
                 results = await search_movies(q)
             elif category == "webseries":

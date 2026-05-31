@@ -521,3 +521,10 @@ body {
     cursor: pointer; text-decoration: underline;
 }
 .ref-hint     { font-size: 0.75rem; color: #555; margin-top: 0.25rem; }
+
+.optional-tag {
+    font-size: 0.7rem;
+    color: #555;
+    font-weight: 400;
+    margin-left: 0.25rem;
+}

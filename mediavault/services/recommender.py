@@ -12,6 +12,14 @@ TMDB_BASE  = "https://api.themoviedb.org/3"
 TMDB_IMAGE = "https://image.tmdb.org/t/p/w500"
 API_KEY    = os.getenv("TMDB_API_KEY")
 
+JIKAN_MANGA_GENRE_IDS = {
+    "Action": 1, "Adventure": 2, "Comedy": 4, "Drama": 8,
+    "Fantasy": 10, "Horror": 14, "Mystery": 7, "Romance": 22,
+    "Sci-Fi": 24, "Slice of Life": 36, "Sports": 30,
+    "Supernatural": 37, "Thriller": 41, "Psychological": 40,
+    "Shounen": 27, "Seinen": 42, "Josei": 43, "Shoujo": 25,
+}
+
 # Jikan genre name → MAL genre ID
 JIKAN_GENRE_IDS = {
     "Action": 1, "Adventure": 2, "Comedy": 4, "Drama": 8,
@@ -42,7 +50,7 @@ TMDB_TV_GENRE_IDS = {
 async def get_recommendations(
     db:       AsyncSession,
     category: str,
-    limit:    int = 6,
+    limit:    int = 15,
 ) -> list[dict]:
 
     # ── Step 1: Fetch library items for this category ─────────────────────
@@ -83,6 +91,8 @@ async def get_recommendations(
     try:
         if category == "anime":
             api_results = await _recommend_anime(top_genres)
+        elif category == "manga":
+            api_results = await _recommend_manga(top_genres)
         elif category == "movie":
             api_results = await _recommend_tmdb(top_genres, "movie")
         elif category == "webseries":
@@ -119,8 +129,8 @@ async def _recommend_anime(top_genres: list[str]) -> list[dict]:
 
     params = {
         "order_by": "popularity",
-        "sort":     "desc",        # Most popular first
-        "limit":    15,
+        "sort":     "asc",        # Most popular first
+        "limit":    20,
         "sfw":      True,
         "min_score": 7.0,          # Only well-rated shows
     }
@@ -215,5 +225,44 @@ async def _recommend_tmdb(top_genres: list[str], category: str) -> list[dict]:
             "total":           total,
             "reference_url":   reference,
             "score":           item.get("vote_average"),
+        })
+    return results
+
+async def _recommend_manga(top_genres: list[str]) -> list[dict]:
+    genre_ids = [
+        str(JIKAN_MANGA_GENRE_IDS[g])
+        for g in top_genres
+        if g in JIKAN_MANGA_GENRE_IDS
+    ]
+
+    params = {
+        "order_by":  "popularity",
+        "sort":      "asc",
+        "limit":     20,
+        "sfw":       True,
+        "min_score": 7.0,
+        "type":      "manga",   # Only manga, excludes light novels/doujin
+    }
+    if genre_ids:
+        params["genres"] = ",".join(genre_ids[:2])
+
+    async with httpx.AsyncClient(timeout=12) as client:
+        resp = await client.get("https://api.jikan.moe/v4/manga", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+    results = []
+    for item in data.get("data", []):
+        results.append({
+            "external_id":     str(item["mal_id"]),
+            "source_api":      "jikan",
+            "title":           item.get("title_english") or item.get("title", ""),
+            "cover_image_url": item.get("images", {}).get("jpg", {}).get("image_url"),
+            "synopsis":        item.get("synopsis") or "",
+            "year_released":   item.get("published", {}).get("prop", {}).get("from", {}).get("year"),
+            "genres":          ",".join(g["name"] for g in item.get("genres", [])),
+            "total":           item.get("chapters"),
+            "reference_url":   item.get("url", ""),
+            "score":           item.get("score"),
         })
     return results
