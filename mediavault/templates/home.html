@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}MediaVault — Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-text">
+        <h1 class="hero-title">MediaVault</h1>
+        <p class="hero-subtitle typewriter">Seven Categories &mdash; Your Interests &mdash; All In One Place</p>
+    </div>
+</div>
+
+<section class="trending-section">
+    <div class="trending-grid">
+
+        <div class="trending-box glass-card">
+            <div class="trending-header">
+                <span class="trending-label">Trending</span>
+                <h3 class="trending-category">Anime</h3>
+            </div>
+            <div class="trending-list" id="trend-anime">
+                <div class="trend-loading">Loading...</div>
+            </div>
+        </div>
+
+        <div class="trending-box glass-card">
+            <div class="trending-header">
+                <span class="trending-label">Trending</span>
+                <h3 class="trending-category">Manga</h3>
+            </div>
+            <div class="trending-list" id="trend-manga">
+                <div class="trend-loading">Loading...</div>
+            </div>
+        </div>
+
+        <div class="trending-box glass-card">
+            <div class="trending-header">
+                <span class="trending-label">Trending</span>
+                <h3 class="trending-category">Movies</h3>
+            </div>
+            <div class="trending-list" id="trend-movie">
+                <div class="trend-loading">Loading...</div>
+            </div>
+        </div>
+
+        <div class="trending-box glass-card">
+            <div class="trending-header">
+                <span class="trending-label">Trending</span>
+                <h3 class="trending-category">TV Series</h3>
+            </div>
+            <div class="trending-list" id="trend-tv">
+                <div class="trend-loading">Loading...</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -26,7 +26,7 @@ app.include_router(activity.router)
 
 @app.get("/")
 async def homepage(request: Request):
-    return templates.TemplateResponse("index.html", {
+    return templates.TemplateResponse("home.html", {
         "request":  request,
         "results":  [],
         "query":    "",
