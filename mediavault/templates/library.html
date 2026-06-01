@@ -5,22 +5,28 @@
 <div class="page-header">
     <h1 class="page-title">My Library</h1>
     <form method="GET" action="/library" class="filter-row">
-        <select name="status" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Status</option>
-            {% for s in statuses %}
-                <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>
-                    {{ s.replace('_', ' ').title() }}
-                </option>
-            {% endfor %}
-        </select>
-        <select name="category" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Categories</option>
-            {% for c in categories %}
-                <option value="{{ c }}" {% if selected_cat == c %}selected{% endif %}>
-                    {{ c.title() }}
-                </option>
-            {% endfor %}
-        </select>
+        <div class="custom-select-wrap">
+            <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                {% for s in statuses %}
+                    <option value="{{ s }}"
+                        {% if selected_status == s %}selected{% endif %}>
+                        {{ s.replace('_', ' ').title() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="custom-select-wrap">
+            <select name="category" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                    <option value="{{ c }}"
+                        {% if selected_cat == c %}selected{% endif %}>
+                        {{ c.title() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
         {% if selected_status or selected_cat %}
             <a href="/library" class="btn-clear">Clear</a>
         {% endif %}
@@ -33,30 +39,44 @@
     </div>
 {% endif %}
 
-<div class="library-grid">
+<div class="cards-grid">
     {% for item in items %}
-    <a href="/library/{{ item.id }}" class="lib-card glass-card">
-        <div class="lib-card-img-wrap">
-            {% if item.cover_image_url %}
-                <img src="{{ item.cover_image_url }}" alt="{{ item.title }}" class="lib-cover">
-            {% else %}
-                <div class="lib-cover lib-no-cover">?</div>
-            {% endif %}
-            <div class="lib-card-overlay">
-                <span class="status-badge status-{{ item.status.value }}">
-                    {{ item.status.value.replace('_', ' ').title() }}
-                </span>
+    <div class="media-card shimmer">
+        <a href="/library/{{ item.id }}" class="media-card-img-link">
+            <div class="media-card-img">
+                {% if item.cover_image_url %}
+                    <img src="{{ item.cover_image_url }}"
+                         alt="{{ item.title }}" loading="lazy">
+                {% else %}
+                    <div class="no-img">?</div>
+                {% endif %}
+                <div class="media-card-hover">
+                    <p class="hover-title">{{ item.title }}</p>
+                    <p class="hover-meta">
+                        {% if item.year_released %}{{ item.year_released }}{% endif %}
+                        {% if item.user_rating %} ⭐ {{ item.user_rating }}{% endif %}
+                    </p>
+                    <div class="hover-badges">
+                        <span class="status-badge status-{{ item.status.value }}">
+                            {{ item.status.value.replace('_',' ').title() }}
+                        </span>
+                        {% if not item.total %}
+                            <span class="ongoing-tag">Ongoing</span>
+                        {% endif %}
+                    </div>
+                    {% if item.category.value != "movie" %}
+                    <p class="hover-progress">
+                        {{ item.progress }}{% if item.total %}/{{ item.total }}{% endif %}
+                    </p>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div class="lib-card-body">
+        </a>
+        <div class="card-actions">
             <span class="category-badge">{{ item.category.value.title() }}</span>
-            <h3 class="lib-card-title">{{ item.title }}</h3>
-            <div class="lib-card-meta">
-                <span>{{ item.progress }}{% if item.total %}/{{ item.total }}{% endif %}</span>
-                {% if item.user_rating %}<span class="accent-text">⭐ {{ item.user_rating }}</span>{% endif %}
-            </div>
+            <a href="/library/{{ item.id }}" class="btn-info">Edit</a>
         </div>
-    </a>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

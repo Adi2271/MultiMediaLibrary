@@ -15,6 +15,9 @@
                 </span>
                 {% if item.year_released %}<span class="meta-pill">{{ item.year_released }}</span>{% endif %}
                 {% if item.user_rating %}<span class="meta-pill accent">⭐ {{ item.user_rating }}/10</span>{% endif %}
+                {% if not item.total %}
+                    <span class="ongoing-tag">Ongoing</span>
+                {% endif %}
             </div>
             <h1 class="detail-title">{{ item.title }}</h1>
             {% if item.genres %}
@@ -24,7 +27,9 @@
                 <p class="detail-synopsis">{{ item.synopsis }}</p>
             {% endif %}
             {% if item.reference_url %}
-                <a href="{{ item.reference_url }}" target="_blank" class="ref-link">View on Source ↗</a>
+                <a href="{{ item.reference_url }}" target="_blank" class="ref-link">
+                    View on Source ↗
+                </a>
             {% endif %}
         </div>
     </div>
@@ -32,16 +37,20 @@
     <div class="detail-lower">
         <div class="update-panel glass-card">
             <h2 class="panel-title">Update Progress</h2>
+
             <div class="update-row">
                 <label>Status</label>
                 <select id="status-select" class="filter-select">
                     {% for s in statuses %}
-                        <option value="{{ s }}" {% if item.status.value == s %}selected{% endif %}>
+                        <option value="{{ s }}"
+                            {% if item.status.value == s %}selected{% endif %}>
                             {{ s.replace('_', ' ').title() }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
+
+            {% if item.category.value != "movie" %}
             <div class="update-row">
                 <label>Progress</label>
                 <div class="progress-row">
@@ -51,14 +60,21 @@
                            class="num-input"/>
                     {% if item.total %}
                         <span class="meta-pill">/ {{ item.total }}</span>
-                        {% if not item.total %}
-                            <span class="ongoing-tag">Ongoing</span>
-                        {% endif %}
                     {% else %}
                         <span class="ongoing-tag">Ongoing</span>
+                        {% if item.source_api in ['jikan', 'tmdb'] %}
+                        <button class="btn-refresh shimmer"
+                                data-item-id="{{ item.id }}"
+                                onclick="refreshTotal(this.dataset.itemId)"
+                                title="Refresh total count from API">
+                            ↻ Refresh
+                        </button>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
+
             <div class="update-row">
                 <label>Rating</label>
                 <input type="number" id="rating-input"
@@ -66,9 +82,14 @@
                        min="0" max="10" step="0.5" class="num-input"/>
                 <span class="meta-pill">/ 10</span>
             </div>
+
             <div class="update-actions">
-                <button class="btn-primary" onclick="updateItem('{{ item.id }}')">Save</button>
-                <button class="btn-delete" onclick="deleteItem('{{ item.id }}')">Remove</button>
+                <button class="btn-primary shimmer"
+                        data-item-id="{{ item.id }}"
+                        onclick="updateItem(this.dataset.itemId)">Save</button>
+                <button class="btn-delete"
+                        data-item-id="{{ item.id }}"
+                        onclick="deleteItem(this.dataset.itemId)">Remove</button>
             </div>
         </div>
 
@@ -78,11 +99,14 @@
             <ul class="activity-list">
                 {% for log in logs %}
                 <li class="activity-item">
-                    <span class="activity-action action-text-{{ log.action | lower | replace(' ', '-') }}">
+                    <span class="activity-action
+                          action-text-{{ log.action | lower | replace(' ', '-') }}">
                         {{ log.action }}
                     </span>
                     <span class="activity-detail">{{ log.detail }}</span>
-                    <span class="activity-time">{{ log.timestamp.strftime('%b %d, %Y') }}</span>
+                    <span class="activity-time">
+                        {{ log.timestamp.strftime('%b %d, %Y') }}
+                    </span>
                 </li>
                 {% endfor %}
             </ul>

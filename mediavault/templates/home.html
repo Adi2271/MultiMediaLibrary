@@ -1,51 +1,88 @@
 {% extends "base.html" %}
-{% block title %}MediaVault — Home{% endblock %}
+{% block title %}MediaVault{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <div class="hero-text">
-        <h1 class="hero-title">MediaVault</h1>
-        <p class="hero-subtitle typewriter">Seven Categories &mdash; Your Interests &mdash; All In One Place</p>
+<div class="home-hero">
+    <h1 class="home-brand">MediaVault</h1>
+    <div class="loop-container">
+        <span class="loop-text" id="loop-text">Seven Categories</span>
+        <span class="loop-arrow">→</span>
     </div>
 </div>
 
 <section class="trending-section">
     <div class="trending-grid">
 
-        <div class="trending-box glass-card">
+        <div class="trending-box glass-card shimmer">
             <div class="trending-header">
-                <span class="trending-label">Trending</span>
-                <h3 class="trending-category">Anime</h3>
+                <div class="trending-title-row">
+                    <span class="trending-label">Trending</span>
+                    <h3 class="trending-category">Anime</h3>
+                </div>
+                <div class="trend-filters">
+                    <button class="trend-filter-btn active"
+                            onclick="switchTrend('anime', 'bypopularity', this)">Popular</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTrend('anime', 'airing', this)">Airing</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTrend('anime', 'favorite', this)">Favourite</button>
+                </div>
             </div>
             <div class="trending-list" id="trend-anime">
                 <div class="trend-loading">Loading...</div>
             </div>
         </div>
 
-        <div class="trending-box glass-card">
+        <div class="trending-box glass-card shimmer">
             <div class="trending-header">
-                <span class="trending-label">Trending</span>
-                <h3 class="trending-category">Manga</h3>
+                <div class="trending-title-row">
+                    <span class="trending-label">Trending</span>
+                    <h3 class="trending-category">Manga</h3>
+                </div>
+                <div class="trend-filters">
+                    <button class="trend-filter-btn active"
+                            onclick="switchTrend('manga', 'bypopularity', this)">Popular</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTrend('manga', 'publishing', this)">Publishing</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTrend('manga', 'favorite', this)">Favourite</button>
+                </div>
             </div>
             <div class="trending-list" id="trend-manga">
                 <div class="trend-loading">Loading...</div>
             </div>
         </div>
 
-        <div class="trending-box glass-card">
+        <div class="trending-box glass-card shimmer">
             <div class="trending-header">
-                <span class="trending-label">Trending</span>
-                <h3 class="trending-category">Movies</h3>
+                <div class="trending-title-row">
+                    <span class="trending-label">Trending</span>
+                    <h3 class="trending-category">Movies</h3>
+                </div>
+                <div class="trend-filters">
+                    <button class="trend-filter-btn active"
+                            onclick="switchTmdbTrend('movie', 'week', this)">This Week</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTmdbTrend('movie', 'day', this)">Today</button>
+                </div>
             </div>
             <div class="trending-list" id="trend-movie">
                 <div class="trend-loading">Loading...</div>
             </div>
         </div>
 
-        <div class="trending-box glass-card">
+        <div class="trending-box glass-card shimmer">
             <div class="trending-header">
-                <span class="trending-label">Trending</span>
-                <h3 class="trending-category">TV Series</h3>
+                <div class="trending-title-row">
+                    <span class="trending-label">Trending</span>
+                    <h3 class="trending-category">TV Series</h3>
+                </div>
+                <div class="trend-filters">
+                    <button class="trend-filter-btn active"
+                            onclick="switchTmdbTrend('tv', 'week', this)">This Week</button>
+                    <button class="trend-filter-btn"
+                            onclick="switchTmdbTrend('tv', 'day', this)">Today</button>
+                </div>
             </div>
             <div class="trending-list" id="trend-tv">
                 <div class="trend-loading">Loading...</div>

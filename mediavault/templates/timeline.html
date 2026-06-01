@@ -8,7 +8,9 @@
 
 {% if not grouped %}
     <div class="empty-state glass-card">
-        <p>No activity yet. <a href="/search">Start adding to your library.</a></p>
+        <p>No activity yet.
+            <a href="/search">Start adding to your library.</a>
+        </p>
     </div>
 {% endif %}
 
@@ -17,26 +19,34 @@
     <div class="timeline-date">{{ date }}</div>
     {% for log in logs %}
     <div class="timeline-entry">
-        <div class="timeline-dot action-{{ log.action | lower | replace(' ', '-') }}"></div>
-        <div class="timeline-card glass-card">
-            <div class="tl-left">
+        <div class="timeline-dot
+             action-{{ log.action | lower | replace(' ', '-') }}"></div>
+
+        <div class="media-card shimmer timeline-card-full">
+            <div class="media-card-img tl-img-small">
                 {% if log.cover %}
-                    <img src="{{ log.cover }}" class="tl-cover" alt="">
+                    <img src="{{ log.cover }}" alt="" loading="lazy">
                 {% else %}
-                    <div class="tl-cover tl-no-cover">?</div>
+                    <div class="no-img">?</div>
                 {% endif %}
+                <div class="media-card-hover">
+                    <p class="hover-title">{{ log.title }}</p>
+                </div>
             </div>
-            <div class="tl-right">
+            <div class="tl-card-body">
                 <div class="tl-top">
-                    <span class="timeline-action action-text-{{ log.action | lower | replace(' ', '-') }}">
+                    <span class="activity-action
+                          action-text-{{ log.action | lower | replace(' ', '-') }}">
                         {{ log.action }}
                     </span>
                     <span class="activity-time">{{ log.time }}</span>
                 </div>
                 {% if log.item_id %}
-                    <a href="/library/{{ log.item_id }}" class="tl-title">{{ log.title }}</a>
+                    <a href="/library/{{ log.item_id }}" class="tl-title">
+                        {{ log.title }}
+                    </a>
                 {% else %}
-                    <span class="tl-title" style="cursor:default;">{{ log.title }}</span>
+                    <span class="tl-title no-link">{{ log.title }}</span>
                 {% endif %}
                 <div class="tl-meta">
                     <span class="category-badge">{{ log.category.title() }}</span>

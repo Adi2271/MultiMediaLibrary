@@ -77,33 +77,6 @@ async def library_page(
 
 
 # ── GET /library/{id} — Detail page (Jinja2) ──────────────────────────────────
-@router.get("/library/{item_id}")
-async def detail_page(
-    item_id: int,
-    request: Request,
-    db:      AsyncSession = Depends(get_db),
-):
-    result = await db.execute(select(MediaItem).where(MediaItem.id == item_id))
-    item   = result.scalar_one_or_none()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found.")
-
-    logs_result = await db.execute(
-        select(ActivityLog)
-        .where(ActivityLog.media_item_id == item_id)
-        .order_by(ActivityLog.timestamp.desc())
-    )
-    logs = logs_result.scalars().all()
-
-    return templates.TemplateResponse("detail.html", {
-        "request":    request,
-        "item":       item,
-        "logs":       logs,
-        "statuses":   [s.value for s in MediaStatus],
-    })
-
-
-# ── PATCH /api/library/{id} — Update progress/status (called by JS) ───────────
 @router.patch("/api/library/{item_id}")
 async def update_item(
     item_id: int,
@@ -115,14 +88,14 @@ async def update_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found.")
 
-    changes = []
-
     if payload.status and payload.status != item.status:
-        changes.append(f"Status changed to {payload.status.value}")
+        old_status = item.status.value
         item.status = payload.status
-        # Auto-log completion
-        if payload.status == MediaStatus.COMPLETED:
-            await log_activity(db, item, "Completed", f"Completed {item.title}.")
+        await log_activity(
+            db, item,
+            payload.status.value.replace("_", " ").title(),
+            f"{payload.status.value.replace('_',' ').title()} {item.title}."
+        )
 
     if payload.progress is not None and payload.progress != item.progress:
         if item.total and payload.progress > item.total:
@@ -130,20 +103,21 @@ async def update_item(
                 status_code=400,
                 detail=f"Progress cannot exceed total ({item.total})."
             )
-        changes.append(f"Progress updated to {payload.progress}")
         item.progress = payload.progress
         await log_activity(
             db, item, "Updated progress",
             f"Updated progress of {item.title} to {payload.progress}."
         )
 
-    if payload.user_rating is not None:
+    if payload.user_rating is not None and payload.user_rating != item.user_rating:
         item.user_rating = payload.user_rating
-        changes.append(f"Rated {payload.user_rating}/10")
-        await log_activity(db, item, "Rated", f"Rated {item.title} {payload.user_rating}/10.")
+        await log_activity(
+            db, item, "Rated",
+            f"Rated {item.title} {payload.user_rating}/10."
+        )
 
     await db.commit()
-    return {"updated": changes}
+    return {"updated": True}
 
 
 # ── DELETE /api/library/{id} — Remove item ────────────────────────────────────
@@ -157,7 +131,7 @@ async def delete_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found.")
 
-    # Save removal record before deleting
+    from models import RemovalLog
     removal = RemovalLog(
         title    = item.title,
         category = item.category.value,
@@ -165,13 +139,12 @@ async def delete_item(
         detail   = f"Removed {item.title} from library.",
     )
     db.add(removal)
+    await db.execute(delete(ActivityLog).where(ActivityLog.media_item_id == item_id))
+    await db.execute(delete(MediaItem).where(MediaItem.id == item_id))
+    await db.commit()
+    return {"deleted": item_id}
     
     # Log removal BEFORE deleting (cascade will kill logs after)
     # So we create a standalone log with no FK — store title in detail
     # Instead: just delete quietly but keep a ghost log approach
     # Simplest: log it first, then delete logs, then delete item
-    
-    await db.execute(delete(ActivityLog).where(ActivityLog.media_item_id == item_id))
-    await db.execute(delete(MediaItem).where(MediaItem.id == item_id))
-    await db.commit()
-    return {"deleted": item_id}

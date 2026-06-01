@@ -1,52 +1,113 @@
 // ═══════════════════════════════════════════════════
 // MediaVault — app.js
-// Tasks: trending, add to library, update, modal, manual entry
 // ═══════════════════════════════════════════════════
 
-// ── Trending (Homepage) ───────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// SHIMMER EFFECT
+// ══════════════════════════════════════════
+function initShimmer() {
+    document.querySelectorAll('.shimmer').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            el.classList.remove('shimmer-reverse');
+            el.classList.add('shimmer-active');
+        });
+        el.addEventListener('mouseleave', () => {
+            el.classList.remove('shimmer-active');
+            el.classList.add('shimmer-reverse');
+            setTimeout(() => el.classList.remove('shimmer-reverse'), 600);
+        });
+    });
+}
+
+// ══════════════════════════════════════════
+// HOMEPAGE — LOOP TEXT
+// ══════════════════════════════════════════
+const LOOP_TEXTS = ["Seven Categories", "Your Interests", "All In One Place"];
+let loopIndex = 0;
+
+function startLoopText() {
+    const el = document.getElementById("loop-text");
+    if (!el) return;
+
+    setInterval(() => {
+        el.classList.add("fade-out");
+        setTimeout(() => {
+            loopIndex = (loopIndex + 1) % LOOP_TEXTS.length;
+            el.textContent = LOOP_TEXTS[loopIndex];
+            el.classList.remove("fade-out");
+            el.classList.add("fade-in");
+            setTimeout(() => el.classList.remove("fade-in"), 350);
+        }, 350);
+    }, 2500);
+}
+
+// ══════════════════════════════════════════
+// TRENDING
+// ══════════════════════════════════════════
 async function loadTrending() {
     const animeEl = document.getElementById("trend-anime");
-    const mangaEl = document.getElementById("trend-manga");
-    const movieEl = document.getElementById("trend-movie");
-    const tvEl    = document.getElementById("trend-tv");
+    if (!animeEl) return;
 
-    if (!animeEl) return; // Not on homepage
-
-    const [animeData, mangaData, movieData, tvData] = await Promise.allSettled([
-        fetchJikanTop("anime"),
-        fetchJikanTop("manga"),
-        fetchTmdbTop("movie"),
-        fetchTmdbTop("tv"),
+    const [a, m, mv, tv] = await Promise.allSettled([
+        fetchJikanTop("anime", "bypopularity"),
+        fetchJikanTop("manga", "bypopularity"),
+        fetchTmdbTop("movie", "week"),
+        fetchTmdbTop("tv",    "week"),
     ]);
 
-    renderTrending(animeEl, animeData.status === "fulfilled" ? animeData.value : []);
-    renderTrending(mangaEl, mangaData.status === "fulfilled" ? mangaData.value : []);
-    renderTrending(movieEl, movieData.status === "fulfilled" ? movieData.value : []);
-    renderTrending(tvEl,    tvData.status   === "fulfilled" ? tvData.value   : []);
+    renderTrending("trend-anime", a.status  === "fulfilled" ? a.value  : []);
+    renderTrending("trend-manga", m.status  === "fulfilled" ? m.value  : []);
+    renderTrending("trend-movie", mv.status === "fulfilled" ? mv.value : []);
+    renderTrending("trend-tv",    tv.status === "fulfilled" ? tv.value : []);
 }
 
-async function fetchJikanTop(type) {
-    const res  = await fetch(`https://api.jikan.moe/v4/top/${type}?limit=10&filter=bypopularity`);
-    const data = await res.json();
-    return (data.data || []).map(item => ({
-        title: item.title_english || item.title,
-        score: item.score,
-        image: item.images?.jpg?.image_url || null,
-        year:  item.year || (item.published?.prop?.from?.year) || null,
-    }));
-}
-
-async function fetchTmdbTop(type) {
-    const res  = await fetch(`/api/tmdb-trending/${type}`);
+async function fetchJikanTop(type, filter) {
+    const res  = await fetch(`/api/jikan-top/${type}?filter=${filter}`);
     const data = await res.json();
     return data.results || [];
 }
 
-function renderTrending(el, items) {
+async function fetchTmdbTop(type, window) {
+    const res  = await fetch(`/api/tmdb-trending/${type}?window=${window}`);
+    const data = await res.json();
+    return data.results || [];
+}
+
+async function switchTrend(type, filter, btn) {
+    const elId = `trend-${type === "anime" ? "anime" : "manga"}`;
+    btn.closest('.trend-filters').querySelectorAll('.trend-filter-btn')
+       .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.getElementById(elId).innerHTML =
+        '<div class="trend-loading">Loading...</div>';
+
+    const results = await fetchJikanTop(type, filter);
+    renderTrending(elId, results);
+}
+
+async function switchTmdbTrend(type, window, btn) {
+    const elId = type === "movie" ? "trend-movie" : "trend-tv";
+    btn.closest('.trend-filters').querySelectorAll('.trend-filter-btn')
+       .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.getElementById(elId).innerHTML =
+        '<div class="trend-loading">Loading...</div>';
+
+    const results = await fetchTmdbTop(type, window);
+    renderTrending(elId, results);
+}
+
+function renderTrending(elId, items) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+
     if (!items.length) {
-        el.innerHTML = `<div class="trend-loading">Could not load.</div>`;
+        el.innerHTML = '<div class="trend-loading">Could not load.</div>';
         return;
     }
+
     el.innerHTML = items.slice(0, 10).map((item, i) => `
         <div class="trend-item">
             <span class="trend-rank ${i < 3 ? 'top' : ''}">#${i + 1}</span>
@@ -54,7 +115,7 @@ function renderTrending(el, items) {
                 ? `<img src="${item.image}" class="trend-img" alt="" loading="lazy">`
                 : `<div class="trend-img-placeholder"></div>`}
             <div class="trend-info">
-                <div class="trend-title">${item.title || item.name || "Unknown"}</div>
+                <div class="trend-title">${item.title || "Unknown"}</div>
                 <div class="trend-meta">${item.year || ""}</div>
             </div>
             ${item.score ? `<span class="trend-score">⭐ ${item.score}</span>` : ""}
@@ -62,7 +123,9 @@ function renderTrending(el, items) {
     `).join("");
 }
 
-// ── Add to Library ────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// ADD TO LIBRARY
+// ══════════════════════════════════════════
 async function addToLibrary(btn) {
     btn.disabled    = true;
     btn.textContent = "Adding...";
@@ -101,7 +164,9 @@ async function addToLibrary(btn) {
     }
 }
 
-// ── Update Progress / Status / Rating ─────────────────────────────────────
+// ══════════════════════════════════════════
+// UPDATE ITEM
+// ══════════════════════════════════════════
 async function updateItem(itemId) {
     const status   = document.getElementById("status-select")?.value  || null;
     const progress = document.getElementById("progress-input")?.value;
@@ -109,8 +174,10 @@ async function updateItem(itemId) {
 
     const payload = {
         status:      status,
-        progress:    progress !== "" ? Math.max(0, parseInt(progress)) : null,
-        user_rating: rating   !== "" ? parseFloat(rating) : null,
+        progress:    (progress !== undefined && progress !== "")
+                        ? Math.max(0, parseInt(progress)) : null,
+        user_rating: (rating !== undefined && rating !== "")
+                        ? parseFloat(rating) : null,
     };
 
     try {
@@ -121,7 +188,7 @@ async function updateItem(itemId) {
         });
         if (res.ok) {
             showToast("Saved!", "success");
-            setTimeout(() => location.reload(), 1000);
+            setTimeout(() => location.reload(), 900);
         } else {
             showToast("Update failed.", "error");
         }
@@ -130,14 +197,16 @@ async function updateItem(itemId) {
     }
 }
 
-// ── Delete Item ────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// DELETE ITEM
+// ══════════════════════════════════════════
 async function deleteItem(itemId) {
     if (!confirm("Remove this from your library?")) return;
     try {
         const res = await fetch(`/api/library/${itemId}`, { method: "DELETE" });
         if (res.ok) {
             showToast("Removed.", "success");
-            setTimeout(() => window.location.href = "/library", 1000);
+            setTimeout(() => window.location.href = "/library", 900);
         } else {
             showToast("Delete failed.", "error");
         }
@@ -146,7 +215,32 @@ async function deleteItem(itemId) {
     }
 }
 
-// ── Info Modal ────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// REFRESH TOTAL
+// ══════════════════════════════════════════
+async function refreshTotal(itemId) {
+    const btn = document.querySelector('.btn-refresh');
+    if (btn) { btn.textContent = "Refreshing..."; btn.disabled = true; }
+
+    try {
+        const res  = await fetch(`/api/library/${itemId}/refresh`, { method: "POST" });
+        const data = await res.json();
+        if (data.updated) {
+            showToast(`Updated: ${data.new_total} total episodes/chapters.`, "success");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast("Already up to date.", "success");
+        }
+    } catch {
+        showToast("Refresh failed.", "error");
+    } finally {
+        if (btn) { btn.textContent = "↻ Refresh"; btn.disabled = false; }
+    }
+}
+
+// ══════════════════════════════════════════
+// INFO MODAL
+// ══════════════════════════════════════════
 let _modalItem = {};
 
 function openInfo(btn) {
@@ -166,13 +260,16 @@ function openInfo(btn) {
 
     document.getElementById("modal-title").textContent    = _modalItem.title;
     document.getElementById("modal-category").textContent = _modalItem.category;
-    document.getElementById("modal-synopsis").textContent = _modalItem.synopsis || "No synopsis available.";
+    document.getElementById("modal-synopsis").textContent = _modalItem.synopsis
+                                                            || "No synopsis available.";
     document.getElementById("modal-genres").textContent   = _modalItem.genres;
     document.getElementById("modal-year").textContent     = _modalItem.year;
-    document.getElementById("modal-score").textContent    = _modalItem.score ? `⭐ ${_modalItem.score}` : "";
-    document.getElementById("modal-total").textContent    = _modalItem.total ? `${_modalItem.total} ep/ch` : "";
+    document.getElementById("modal-score").textContent    = _modalItem.score
+                                                            ? `⭐ ${_modalItem.score}` : "";
+    document.getElementById("modal-total").textContent    = _modalItem.total
+                                                            ? `${_modalItem.total} ep/ch` : "";
 
-    const cover = document.getElementById("modal-cover");
+    const cover            = document.getElementById("modal-cover");
     cover.src              = _modalItem.cover || "";
     cover.style.display    = _modalItem.cover ? "block" : "none";
 
@@ -228,9 +325,9 @@ async function addFromModal() {
         const data = await res.json();
         if (res.ok) {
             btn.textContent = "✓ Added";
-            showToast("Added to library!", "success");
+            showToast("Added!", "success");
         } else {
-            btn.textContent = "Already Added";
+            btn.textContent = "+ Add to Library";
             btn.disabled    = false;
             showToast(data.detail || "Already in library.", "error");
         }
@@ -241,7 +338,9 @@ async function addFromModal() {
     }
 }
 
-// ── Tab Switcher ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// TAB SWITCHER
+// ══════════════════════════════════════════
 function switchTab(tab, btn) {
     document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
     document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
@@ -249,7 +348,9 @@ function switchTab(tab, btn) {
     btn.classList.add("active");
 }
 
-// ── Manual Entry ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// MANUAL ENTRY
+// ══════════════════════════════════════════
 const REF_SITES = {
     manga:    { prefix: "https://myanimelist.net/manga/",    label: "MAL Manga" },
     manhwa:   { prefix: "https://www.webtoons.com/en/",      label: "Webtoons" },
@@ -272,6 +373,22 @@ function updateRefPlaceholder() {
     }
 }
 
+function tryLoadIframe(url) {
+    const iframe = document.getElementById("manual-iframe");
+    const note   = document.getElementById("iframe-note");
+    if (!iframe) return;
+
+    if (url && url.startsWith("http")) {
+        iframe.src          = url;
+        iframe.className    = "manual-iframe visible";
+        if (note) note.style.display = "block";
+    } else {
+        iframe.src          = "";
+        iframe.className    = "manual-iframe";
+        if (note) note.style.display = "none";
+    }
+}
+
 async function submitManual() {
     const title = document.getElementById("m-title")?.value.trim();
     const cat   = document.getElementById("m-category")?.value;
@@ -281,14 +398,14 @@ async function submitManual() {
         title,
         category:        cat,
         source_api:      "manual",
-        reference_url:   document.getElementById("m-url-slug")?.value.trim()  || null,
-        genres:          document.getElementById("m-genres")?.value.trim()     || null,
-        cover_image_url: document.getElementById("m-cover")?.value.trim()      || null,
+        reference_url:   document.getElementById("m-url-slug")?.value.trim()   || null,
+        genres:          document.getElementById("m-genres")?.value.trim()      || null,
+        cover_image_url: document.getElementById("m-cover")?.value.trim()       || null,
         year_released:   document.getElementById("m-year")?.value
-                            ? parseInt(document.getElementById("m-year").value) : null,
+                            ? parseInt(document.getElementById("m-year").value)  : null,
         total:           document.getElementById("m-total")?.value
                             ? parseInt(document.getElementById("m-total").value) : null,
-        synopsis:        document.getElementById("m-synopsis")?.value.trim()   || null,
+        synopsis:        document.getElementById("m-synopsis")?.value.trim()    || null,
     };
 
     try {
@@ -301,7 +418,11 @@ async function submitManual() {
         if (res.ok) {
             showToast(`"${title}" added!`, "success");
             ["m-title","m-url-slug","m-genres","m-cover","m-year","m-total","m-synopsis"]
-                .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = "";
+                });
+            tryLoadIframe("");
         } else {
             showToast(data.detail || "Could not add.", "error");
         }
@@ -310,16 +431,23 @@ async function submitManual() {
     }
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
 function showToast(message, type = "success") {
     const toast       = document.getElementById("toast");
+    if (!toast) return;
     toast.textContent = message;
     toast.className   = `toast ${type} show`;
     setTimeout(() => { toast.className = `toast ${type}`; }, 3000);
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
+    initShimmer();
+    startLoopText();
     loadTrending();
     if (document.getElementById("m-category")) updateRefPlaceholder();
 });

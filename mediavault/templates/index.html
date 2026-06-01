@@ -12,13 +12,12 @@
 
 <div id="tab-search" class="tab-content">
     <form method="GET" action="/search" class="search-form glass-card">
-        <input type="text" name="q" value="{{ query }}"
-               placeholder="Search title..." class="search-input" autofocus/>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search title..." class="search-input" autofocus />
         <select name="category" class="filter-select">
-            <option value="anime"     {% if category == "anime" %}selected{% endif %}>Anime</option>
-            <option value="manga"     {% if category == "manga" %}selected{% endif %}>Manga</option>
-            <option value="movie"     {% if category == "movie" %}selected{% endif %}>Movie</option>
-            <option value="webseries" {% if category == "webseries" %}selected{% endif %}>Webseries</option>
+            <option value="anime" {% if category=="anime" %}selected{% endif %}>Anime</option>
+            <option value="manga" {% if category=="manga" %}selected{% endif %}>Manga</option>
+            <option value="movie" {% if category=="movie" %}selected{% endif %}>Movie</option>
+            <option value="webseries" {% if category=="webseries" %}selected{% endif %}>Webseries</option>
         </select>
         <button type="submit" class="btn-primary">Search</button>
     </form>
@@ -35,9 +34,9 @@
             <div class="media-card">
                 <div class="media-card-img">
                     {% if item.cover_image_url %}
-                        <img src="{{ item.cover_image_url }}" alt="{{ item.title }}">
+                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}">
                     {% else %}
-                        <div class="no-img">?</div>
+                    <div class="no-img">?</div>
                     {% endif %}
                     <div class="media-card-hover">
                         <p class="hover-title">{{ item.title }}</p>
@@ -48,29 +47,20 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-info" onclick="openInfo(this)"
-                        data-title="{{ item.title }}"
-                        data-category="{{ category }}"
-                        data-external-id="{{ item.external_id }}"
-                        data-source-api="{{ item.source_api }}"
-                        data-cover="{{ item.cover_image_url or '' }}"
-                        data-synopsis="{{ (item.synopsis or '') | replace('"', '&quot;') }}"
-                        data-year="{{ item.year_released or '' }}"
-                        data-genres="{{ item.genres or '' }}"
-                        data-total="{{ item.total or '' }}"
-                        data-reference-url="{{ item.reference_url or '' }}"
+                    <button class="btn-info" onclick="openInfo(this)" data-title="{{ item.title }}"
+                        data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                        data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                        data-synopsis="{{ (item.synopsis or '') | replace('"', ' &quot;') }}"
+                        data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                        data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}"
                         data-score="{{ item.score or '' }}">Info</button>
-                    <button class="btn-add" onclick="addToLibrary(this)"
-                        data-title="{{ item.title }}"
-                        data-category="{{ category }}"
-                        data-external-id="{{ item.external_id }}"
-                        data-source-api="{{ item.source_api }}"
-                        data-cover="{{ item.cover_image_url or '' }}"
-                        data-synopsis="{{ (item.synopsis or '') | replace('"', '&quot;') }}"
-                        data-year="{{ item.year_released or '' }}"
-                        data-genres="{{ item.genres or '' }}"
-                        data-total="{{ item.total or '' }}"
-                        data-reference-url="{{ item.reference_url or '' }}">+ Add</button>
+                    <button class="btn-add" onclick="addToLibrary(this)" data-title="{{ item.title }}"
+                        data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                        data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                        data-synopsis="{{ (item.synopsis or '') | replace('"', ' &quot;') }}"
+                        data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                        data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}">+
+                        Add</button>
                 </div>
             </div>
             {% endfor %}
@@ -85,7 +75,7 @@
     {% endif %}
 
     {% if query and not results and not error %}
-        <p class="no-results">No results for "{{ query }}".</p>
+    <p class="no-results">No results for "{{ query }}".</p>
     {% endif %}
 
     {% if results %}
@@ -98,9 +88,9 @@
             <div class="media-card">
                 <div class="media-card-img">
                     {% if item.cover_image_url %}
-                        <img src="{{ item.cover_image_url }}" alt="{{ item.title }}">
+                    <img src="{{ item.cover_image_url }}" alt="{{ item.title }}">
                     {% else %}
-                        <div class="no-img">?</div>
+                    <div class="no-img">?</div>
                     {% endif %}
                     <div class="media-card-hover">
                         <p class="hover-title">{{ item.title }}</p>
@@ -111,29 +101,20 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-info" onclick="openInfo(this)"
-                        data-title="{{ item.title }}"
-                        data-category="{{ category }}"
-                        data-external-id="{{ item.external_id }}"
-                        data-source-api="{{ item.source_api }}"
-                        data-cover="{{ item.cover_image_url or '' }}"
-                        data-synopsis="{{ (item.synopsis or '') | replace('"', '&quot;') }}"
-                        data-year="{{ item.year_released or '' }}"
-                        data-genres="{{ item.genres or '' }}"
-                        data-total="{{ item.total or '' }}"
-                        data-reference-url="{{ item.reference_url or '' }}"
+                    <button class="btn-info" onclick="openInfo(this)" data-title="{{ item.title }}"
+                        data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                        data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                        data-synopsis="{{ (item.synopsis or '') | replace('"', ' &quot;') }}"
+                        data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                        data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}"
                         data-score="{{ item.score or '' }}">Info</button>
-                    <button class="btn-add" onclick="addToLibrary(this)"
-                        data-title="{{ item.title }}"
-                        data-category="{{ category }}"
-                        data-external-id="{{ item.external_id }}"
-                        data-source-api="{{ item.source_api }}"
-                        data-cover="{{ item.cover_image_url or '' }}"
-                        data-synopsis="{{ (item.synopsis or '') | replace('"', '&quot;') }}"
-                        data-year="{{ item.year_released or '' }}"
-                        data-genres="{{ item.genres or '' }}"
-                        data-total="{{ item.total or '' }}"
-                        data-reference-url="{{ item.reference_url or '' }}">+ Add</button>
+                    <button class="btn-add" onclick="addToLibrary(this)" data-title="{{ item.title }}"
+                        data-category="{{ category }}" data-external-id="{{ item.external_id }}"
+                        data-source-api="{{ item.source_api }}" data-cover="{{ item.cover_image_url or '' }}"
+                        data-synopsis="{{ (item.synopsis or '') | replace('"', ' &quot;') }}"
+                        data-year="{{ item.year_released or '' }}" data-genres="{{ item.genres or '' }}"
+                        data-total="{{ item.total or '' }}" data-reference-url="{{ item.reference_url or '' }}">+
+                        Add</button>
                 </div>
             </div>
             {% endfor %}
@@ -148,7 +129,7 @@
         <div class="manual-form">
             <div class="form-row">
                 <label>Title *</label>
-                <input type="text" id="m-title" class="search-input" placeholder="e.g. Solo Leveling"/>
+                <input type="text" id="m-title" class="search-input" placeholder="e.g. Solo Leveling" />
             </div>
             <div class="form-row">
                 <label>Category *</label>
@@ -162,41 +143,50 @@
                     <option value="webseries">Webseries</option>
                 </select>
             </div>
-            <div class="form-row">
+            <div class="form-row full-width">
                 <label>Reference URL <span class="optional-tag">optional</span></label>
                 <div class="ref-url-row">
-                    <span id="ref-prefix" class="ref-prefix"
-                          onclick="window.open(this.textContent,'_blank')">
+                    <span id="ref-prefix" class="ref-prefix" onclick="window.open(this.textContent,'_blank')">
                         https://www.webtoons.com/en/
                     </span>
-                    <input type="text" id="m-url-slug" class="search-input"
-                           placeholder="paste your link here"/>
+                    <input type="text" id="m-url-slug" class="search-input" placeholder="paste your link here"
+                        oninput="tryLoadIframe(this.value)" />
                 </div>
                 <small id="ref-hint" class="ref-hint">Click prefix to browse the site</small>
             </div>
-            <div class="form-row">
-                <label>Genres <span class="optional-tag">optional</span></label>
-                <input type="text" id="m-genres" class="search-input"
-                       placeholder="e.g. Action,Fantasy,Romance"/>
+            <div class="form-row full-width manual-iframe-row">
+                <iframe id="manual-iframe" class="manual-iframe" sandbox="allow-scripts allow-same-origin allow-popups"
+                    loading="lazy"></iframe>
+                <span class="iframe-note" id="iframe-note" style="display:none;">
+                    Note: some sites block iframe previews — open the link directly if blank.
+                </span>
             </div>
             <div class="form-row">
-                <label>Cover Image URL <span class="optional-tag">optional</span></label>
-                <input type="url" id="m-cover" class="search-input" placeholder="Paste direct image URL"/>
+                <label>Genres <span class="optional-tag">optional</span></label>
+                <input type="text" id="m-genres" class="search-input" placeholder="e.g. Action,Fantasy" />
+            </div>
+            <div class="form-row">
+                <label>Cover URL <span class="optional-tag">optional</span></label>
+                <input type="url" id="m-cover" class="search-input" placeholder="Direct image URL" />
             </div>
             <div class="form-row">
                 <label>Year <span class="optional-tag">optional</span></label>
-                <input type="number" id="m-year" class="search-input num-input" placeholder="e.g. 2020"/>
+                <input type="number" id="m-year" class="search-input" placeholder="e.g. 2020" />
             </div>
             <div class="form-row">
-                <label>Total Chapters/Episodes <span class="optional-tag">optional</span></label>
-                <input type="number" id="m-total" class="search-input num-input" placeholder="Blank if ongoing"/>
+                <label>Total Ch/Ep <span class="optional-tag">optional</span></label>
+                <input type="number" id="m-total" class="search-input" placeholder="Blank if ongoing" />
             </div>
-            <div class="form-row">
+            <div class="form-row full-width">
                 <label>Synopsis <span class="optional-tag">optional</span></label>
                 <textarea id="m-synopsis" class="search-input manual-textarea"
-                          placeholder="Short description"></textarea>
+                    placeholder="Short description"></textarea>
             </div>
-            <button class="btn-primary" onclick="submitManual()">Add to Library</button>
+            <div class="manual-submit-row">
+                <button class="btn-primary shimmer" onclick="submitManual()">
+                    Add to Library
+                </button>
+            </div>
         </div>
     </div>
 </div>
