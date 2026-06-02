@@ -62,9 +62,15 @@
                         <span class="meta-pill">/ {{ item.total }}</span>
                     {% else %}
                         <span class="ongoing-tag">Ongoing</span>
-                        <span class="meta-pill" id="current-total">
-                            ep {{ item.progress }} so far
-                        </span>
+                        {% if item.progress > 0% } 
+                            <span class="meta-pill" id="current-total">
+                                {{ item.progress }} tracked
+                            </span>
+                        {% else %}
+                            <span class="meta-pill" id="current-total" style="color:var(--text-3);">
+                                total unknown
+                            </span>
+                        {% endif %}
                         {% if item.source_api in ['jikan', 'tmdb'] %}
                         <button class="btn-refresh shimmer"
                                 onclick="refreshTotal('{{ item.id }}')"

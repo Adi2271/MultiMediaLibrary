@@ -483,30 +483,29 @@ async function openTrendInfo(title, category, image, score, year) {
     document.getElementById("trend-modal-genres").textContent   = "";
     document.getElementById("trend-modal-synopsis").textContent = "Loading...";
 
-    const cover          = document.getElementById("trend-modal-cover");
-    cover.src            = image || "";
-    cover.style.display  = image ? "block" : "none";
-    
-    // Add/update source link
-    const refLink         = document.getElementById("trend-modal-ref");
-    refLink.style.display = "none"; // hide until details load
+    const cover         = document.getElementById("trend-modal-cover");
+    cover.src           = image || "";
+    cover.style.display = image ? "block" : "none";
 
-    const addBtn         = document.getElementById("trend-modal-add-btn");
-    addBtn.textContent   = "+ Add to Library";
-    addBtn.disabled      = false;
+    const addBtn        = document.getElementById("trend-modal-add-btn");
+    addBtn.textContent  = "+ Add to Library";
+    addBtn.disabled     = false;
+
+    // Hide source link until loaded
+    const refLink       = document.getElementById("trend-modal-ref");
+    refLink.style.display = "none";
 
     document.getElementById("trend-modal").classList.add("open");
     document.body.style.overflow = "hidden";
 
-    // Fetch full details
     try {
         if (category === "anime" || category === "manga") {
-            const type  = category;
-            const res   = await fetch(
+            const type = category;
+            const res  = await fetch(
                 `https://api.jikan.moe/v4/${type}?q=${encodeURIComponent(title)}&limit=1`
             );
-            const data  = await res.json();
-            const item  = data.data?.[0];
+            const data = await res.json();
+            const item = data.data?.[0];
             if (item) {
                 document.getElementById("trend-modal-synopsis").textContent =
                     item.synopsis || "No synopsis available.";
@@ -518,12 +517,16 @@ async function openTrendInfo(title, category, image, score, year) {
                 _trendItem.synopsis      = item.synopsis || "";
                 _trendItem.total         = item.episodes || item.chapters || null;
                 _trendItem.reference_url = item.url || "";
+
+                if (item.url) {
+                    refLink.href          = item.url;
+                    refLink.style.display = "inline";
+                }
             }
         } else {
-            // TMDB — use search
-            const endpoint = category === "movie" ? "movie" : "tv";
+            const catParam = category === "movie" ? "movie" : "webseries";
             const res      = await fetch(
-                `/api/search?q=${encodeURIComponent(title)}&category=${endpoint === "tv" ? "webseries" : "movie"}`
+                `/api/search?q=${encodeURIComponent(title)}&category=${catParam}`
             );
             const data     = await res.json();
             const item     = data.results?.[0];
@@ -538,12 +541,12 @@ async function openTrendInfo(title, category, image, score, year) {
                 _trendItem.synopsis      = item.synopsis || "";
                 _trendItem.total         = item.total || null;
                 _trendItem.reference_url = item.reference_url || "";
-                const refLink         = document.getElementById("trend-modal-ref");
-                if (_trendItem.reference_url) {
-                    refLink.href          = _trendItem.reference_url;
+                _trendItem.cover         = item.cover_image_url || image;
+
+                if (item.reference_url) {
+                    refLink.href          = item.reference_url;
                     refLink.style.display = "inline";
                 }
-                _trendItem.cover         = item.cover_image_url || image;
             }
         }
     } catch {
