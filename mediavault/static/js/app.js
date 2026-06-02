@@ -247,26 +247,36 @@ async function deleteItem(itemId) {
 // ══════════════════════════════════════════
 async function refreshTotal(itemId) {
     const btn = document.querySelector('.btn-refresh');
-    if (btn) { btn.textContent = "Refreshing..."; btn.disabled = true; }
+    if (btn) { btn.textContent = "Fetching..."; btn.disabled = true; }
 
     try {
         const res  = await fetch(`/api/library/${itemId}/refresh`, { method: "POST" });
         const data = await res.json();
-        if (data.updated) {
-            showToast(`Updated: ${data.new_total} total.`, "success");
-            // Update displayed total without full reload
-            const totalEl = document.getElementById("current-total");
-            if (totalEl) totalEl.textContent = `${data.new_total} ep/ch`;
+
+        const totalEl = document.getElementById("current-total");
+
+        if (data.updated && data.new_total) {
+            // Update the displayed total in place
+            if (totalEl) {
+                totalEl.textContent      = `/ ${data.new_total} ep`;
+                totalEl.style.color      = "";
+            }
+            // Update the progress input max
             const input = document.getElementById("progress-input");
             if (input) input.max = data.new_total;
-            setTimeout(() => location.reload(), 1500);
+
+            showToast(`Total updated: ${data.new_total} episodes.`, "success");
+
+            // Hide refresh button — total is now known
+            if (btn) btn.style.display = "none";
+
         } else {
-            showToast("Already up to date.", "success");
+            showToast("Total not available from API yet.", "success");
         }
     } catch {
         showToast("Refresh failed.", "error");
     } finally {
-        if (btn) { btn.textContent = "↻ Refresh"; btn.disabled = false; }
+        if (btn) { btn.textContent = "↻ Refresh Total"; btn.disabled = false; }
     }
 }
 
