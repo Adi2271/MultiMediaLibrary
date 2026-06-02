@@ -486,6 +486,10 @@ async function openTrendInfo(title, category, image, score, year) {
     const cover          = document.getElementById("trend-modal-cover");
     cover.src            = image || "";
     cover.style.display  = image ? "block" : "none";
+    
+    // Add/update source link
+    const refLink         = document.getElementById("trend-modal-ref");
+    refLink.style.display = "none"; // hide until details load
 
     const addBtn         = document.getElementById("trend-modal-add-btn");
     addBtn.textContent   = "+ Add to Library";
@@ -534,6 +538,11 @@ async function openTrendInfo(title, category, image, score, year) {
                 _trendItem.synopsis      = item.synopsis || "";
                 _trendItem.total         = item.total || null;
                 _trendItem.reference_url = item.reference_url || "";
+                const refLink         = document.getElementById("trend-modal-ref");
+                if (_trendItem.reference_url) {
+                    refLink.href          = _trendItem.reference_url;
+                    refLink.style.display = "inline";
+                }
                 _trendItem.cover         = item.cover_image_url || image;
             }
         }

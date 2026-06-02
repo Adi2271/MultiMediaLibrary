@@ -60,7 +60,7 @@
                         <span class="status-badge status-{{ item.status.value }}">
                             {{ item.status.value.replace('_',' ').title() }}
                         </span>
-                        {% if not item.total %}
+                        {% if not item.total and item.category.value != "movie" %}
                             <span class="ongoing-tag">Ongoing</span>
                         {% endif %}
                     </div>

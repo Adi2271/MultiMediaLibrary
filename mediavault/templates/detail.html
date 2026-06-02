@@ -62,8 +62,8 @@
                         <span class="meta-pill">/ {{ item.total }}</span>
                     {% else %}
                         <span class="ongoing-tag">Ongoing</span>
-                        <span class="meta-pill" id="current-total" style="color:var(--text-3);">
-                            {% if item.total %}{{ item.total }} known{% else %}total unknown{% endif %}
+                        <span class="meta-pill" id="current-total">
+                            ep {{ item.progress }} so far
                         </span>
                         {% if item.source_api in ['jikan', 'tmdb'] %}
                         <button class="btn-refresh shimmer"
