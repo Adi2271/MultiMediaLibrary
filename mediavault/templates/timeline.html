@@ -8,9 +8,7 @@
 
 {% if not grouped %}
     <div class="empty-state glass-card">
-        <p>No activity yet.
-            <a href="/search">Start adding to your library.</a>
-        </p>
+        <p>No activity yet. <a href="/search">Start adding to your library.</a></p>
     </div>
 {% endif %}
 
@@ -19,43 +17,35 @@
     <div class="timeline-date">{{ date }}</div>
     {% for log in logs %}
     <div class="timeline-entry">
-        <div class="timeline-dot
-             action-{{ log.action | lower | replace(' ', '-') }}"></div>
-
-        <div class="media-card shimmer timeline-card-full">
-            <div class="media-card-img tl-img-small">
+        <div class="timeline-dot action-{{ log.action | lower | replace(' ', '-') }}"></div>
+        <div class="tl-card glass-card shimmer">
+            <div class="tl-cover-wrap">
                 {% if log.cover %}
-                    <img src="{{ log.cover }}" alt="" loading="lazy">
+                    <img src="{{ log.cover }}" class="tl-cover-img" alt="" loading="lazy">
                 {% else %}
-                    <div class="no-img">?</div>
+                    <div class="tl-cover-placeholder">?</div>
                 {% endif %}
-                <div class="media-card-hover">
-                    <p class="hover-title">{{ log.title }}</p>
-                </div>
             </div>
-            <div class="tl-card-body">
-                <div class="tl-top">
-                    <span class="activity-action
-                          action-text-{{ log.action | lower | replace(' ', '-') }}">
+            <div class="tl-body">
+                <div class="tl-top-row">
+                    <span class="activity-action action-text-{{ log.action | lower | replace(' ', '-') }}">
                         {{ log.action }}
                     </span>
                     <span class="activity-time">{{ log.time }}</span>
                 </div>
                 {% if log.item_id %}
-                    <a href="/library/{{ log.item_id }}" class="tl-title">
-                        {{ log.title }}
-                    </a>
+                    <a href="/library/{{ log.item_id }}" class="tl-title">{{ log.title }}</a>
                 {% else %}
                     <span class="tl-title no-link">{{ log.title }}</span>
                 {% endif %}
-                <div class="tl-meta">
+                <div class="tl-badges">
                     <span class="category-badge">{{ log.category.title() }}</span>
                     <span class="status-badge status-{{ log.status }}">
                         {{ log.status.replace('_', ' ').title() }}
                     </span>
                 </div>
                 {% if log.detail %}
-                    <p class="activity-detail">{{ log.detail }}</p>
+                    <p class="tl-detail">{{ log.detail }}</p>
                 {% endif %}
             </div>
         </div>

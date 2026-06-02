@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MediaVault{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
     <nav class="navbar">
         <a href="/" class="nav-brand">MV</a>
         <div class="nav-links">
-            <a href="/search" {% if request.url.path == '/search' %}class="active"{% endif %}>Search & Add</a>
-            <a href="/library" {% if request.url.path == '/library' %}class="active"{% endif %}>My Library</a>
-            <a href="/timeline" {% if request.url.path == '/timeline' %}class="active"{% endif %}>Activity Timeline</a>
+            <a href="/search" {% if request.url.path=='/search' %}class="active" {% endif %}>Search & Add</a>
+            <a href="/library" {% if request.url.path=='/library' %}class="active" {% endif %}>My Library</a>
+            <a href="/timeline" {% if request.url.path=='/timeline' %}class="active" {% endif %}>Activity Timeline</a>
         </div>
     </nav>
 
@@ -24,13 +28,40 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Trending Info Modal -->
+    <div id="trend-modal" class="modal-overlay" onclick="closeTrendModal(event)">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeTrendModal()">✕</button>
+            <div class="modal-inner">
+                <div class="modal-left">
+                    <img id="trend-modal-cover" src="" alt="" class="modal-cover" />
+                </div>
+                <div class="modal-right">
+                    <div class="modal-meta-top">
+                        <span id="trend-modal-category" class="category-badge"></span>
+                        <span id="trend-modal-year" class="meta-pill"></span>
+                        <span id="trend-modal-score" class="meta-pill accent"></span>
+                    </div>
+                    <h2 id="trend-modal-title" class="modal-title"></h2>
+                    <p id="trend-modal-genres" class="modal-genres"></p>
+                    <p id="trend-modal-synopsis" class="modal-synopsis"></p>
+                    <div class="modal-actions">
+                        <button id="trend-modal-add-btn" class="btn-primary shimmer" onclick="addFromTrendModal()">
+                            + Add to Library
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Info Modal -->
     <div id="info-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box">
             <button class="modal-close" onclick="closeInfoModal()">✕</button>
             <div class="modal-inner">
                 <div class="modal-left">
-                    <img id="modal-cover" src="" alt="" class="modal-cover"/>
+                    <img id="modal-cover" src="" alt="" class="modal-cover" />
                 </div>
                 <div class="modal-right">
                     <div class="modal-meta-top">
@@ -43,10 +74,10 @@
                     <p id="modal-genres" class="modal-genres"></p>
                     <p id="modal-synopsis" class="modal-synopsis"></p>
                     <div class="modal-actions">
-                        <a id="modal-ref" href="#" target="_blank"
-                           class="ref-link" style="display:none;">View on Source ↗</a>
-                        <button id="modal-add-btn" class="btn-primary"
-                                onclick="addFromModal()">+ Add to Library</button>
+                        <a id="modal-ref" href="#" target="_blank" class="ref-link" style="display:none;">View on Source
+                            ↗</a>
+                        <button id="modal-add-btn" class="btn-primary" onclick="addFromModal()">+ Add to
+                            Library</button>
                     </div>
                 </div>
             </div>
@@ -57,4 +88,5 @@
 
     <script src="/static/js/app.js"></script>
 </body>
-</html>
+
+</html>vv 

@@ -102,14 +102,30 @@ async function switchTmdbTrend(type, window, btn) {
 function renderTrending(elId, items) {
     const el = document.getElementById(elId);
     if (!el) return;
-
     if (!items.length) {
         el.innerHTML = '<div class="trend-loading">Could not load.</div>';
         return;
     }
 
+    // Determine category from element id
+    const catMap = {
+        "trend-anime": "anime",
+        "trend-manga": "manga",
+        "trend-movie": "movie",
+        "trend-tv":    "tv",
+    };
+    const cat = catMap[elId] || "anime";
+
     el.innerHTML = items.slice(0, 10).map((item, i) => `
         <div class="trend-item">
+            onclick="openTrendInfo(
+                 ${JSON.stringify(item.title || "")},
+                 ${JSON.stringify(cat)},
+                 ${JSON.stringify(item.image || "")},
+                 ${JSON.stringify(item.score || "")},
+                 ${JSON.stringify(item.year  || "")}
+            )"
+            style="cursor:pointer;">
             <span class="trend-rank ${i < 3 ? 'top' : ''}">#${i + 1}</span>
             ${item.image
                 ? `<img src="${item.image}" class="trend-img" alt="" loading="lazy">`
@@ -373,22 +389,6 @@ function updateRefPlaceholder() {
     }
 }
 
-function tryLoadIframe(url) {
-    const iframe = document.getElementById("manual-iframe");
-    const note   = document.getElementById("iframe-note");
-    if (!iframe) return;
-
-    if (url && url.startsWith("http")) {
-        iframe.src          = url;
-        iframe.className    = "manual-iframe visible";
-        if (note) note.style.display = "block";
-    } else {
-        iframe.src          = "";
-        iframe.className    = "manual-iframe";
-        if (note) note.style.display = "none";
-    }
-}
-
 async function submitManual() {
     const title = document.getElementById("m-title")?.value.trim();
     const cat   = document.getElementById("m-category")?.value;
@@ -451,3 +451,126 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTrending();
     if (document.getElementById("m-category")) updateRefPlaceholder();
 });
+
+// ══════════════════════════════════════════
+// TRENDING MODAL
+// ══════════════════════════════════════════
+let _trendItem = {};
+
+async function openTrendInfo(title, category, image, score, year) {
+    _trendItem = { title, category, image, score, year };
+
+    document.getElementById("trend-modal-title").textContent    = title;
+    document.getElementById("trend-modal-category").textContent = category;
+    document.getElementById("trend-modal-score").textContent    = score ? `⭐ ${score}` : "";
+    document.getElementById("trend-modal-year").textContent     = year || "";
+    document.getElementById("trend-modal-genres").textContent   = "";
+    document.getElementById("trend-modal-synopsis").textContent = "Loading...";
+
+    const cover          = document.getElementById("trend-modal-cover");
+    cover.src            = image || "";
+    cover.style.display  = image ? "block" : "none";
+
+    const addBtn         = document.getElementById("trend-modal-add-btn");
+    addBtn.textContent   = "+ Add to Library";
+    addBtn.disabled      = false;
+
+    document.getElementById("trend-modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    // Fetch full details
+    try {
+        if (category === "anime" || category === "manga") {
+            const type  = category;
+            const res   = await fetch(
+                `https://api.jikan.moe/v4/${type}?q=${encodeURIComponent(title)}&limit=1`
+            );
+            const data  = await res.json();
+            const item  = data.data?.[0];
+            if (item) {
+                document.getElementById("trend-modal-synopsis").textContent =
+                    item.synopsis || "No synopsis available.";
+                document.getElementById("trend-modal-genres").textContent =
+                    item.genres?.map(g => g.name).join(", ") || "";
+                _trendItem.external_id   = String(item.mal_id);
+                _trendItem.source_api    = "jikan";
+                _trendItem.genres        = item.genres?.map(g => g.name).join(",") || "";
+                _trendItem.synopsis      = item.synopsis || "";
+                _trendItem.total         = item.episodes || item.chapters || null;
+                _trendItem.reference_url = item.url || "";
+            }
+        } else {
+            // TMDB — use search
+            const endpoint = category === "movie" ? "movie" : "tv";
+            const res      = await fetch(
+                `/api/search?q=${encodeURIComponent(title)}&category=${endpoint === "tv" ? "webseries" : "movie"}`
+            );
+            const data     = await res.json();
+            const item     = data.results?.[0];
+            if (item) {
+                document.getElementById("trend-modal-synopsis").textContent =
+                    item.synopsis || "No synopsis available.";
+                document.getElementById("trend-modal-genres").textContent =
+                    item.genres || "";
+                _trendItem.external_id   = item.external_id;
+                _trendItem.source_api    = "tmdb";
+                _trendItem.genres        = item.genres || "";
+                _trendItem.synopsis      = item.synopsis || "";
+                _trendItem.total         = item.total || null;
+                _trendItem.reference_url = item.reference_url || "";
+                _trendItem.cover         = item.cover_image_url || image;
+            }
+        }
+    } catch {
+        document.getElementById("trend-modal-synopsis").textContent =
+            "Could not load details.";
+    }
+}
+
+function closeTrendModal(event) {
+    if (event && event.target !== document.getElementById("trend-modal")) return;
+    document.getElementById("trend-modal").classList.remove("open");
+    document.body.style.overflow = "";
+}
+
+async function addFromTrendModal() {
+    const btn        = document.getElementById("trend-modal-add-btn");
+    btn.disabled     = true;
+    btn.textContent  = "Adding...";
+
+    const catMap = { anime: "anime", manga: "manga", movie: "movie", tv: "webseries" };
+
+    const payload = {
+        title:           _trendItem.title,
+        category:        catMap[_trendItem.category] || _trendItem.category,
+        external_id:     _trendItem.external_id   || null,
+        source_api:      _trendItem.source_api     || null,
+        cover_image_url: _trendItem.cover          || _trendItem.image || null,
+        synopsis:        _trendItem.synopsis       || null,
+        year_released:   _trendItem.year           ? parseInt(_trendItem.year) : null,
+        genres:          _trendItem.genres         || null,
+        total:           _trendItem.total          || null,
+        reference_url:   _trendItem.reference_url  || null,
+    };
+
+    try {
+        const res  = await fetch("/api/library", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.ok) {
+            btn.textContent = "✓ Added";
+            showToast("Added to library!", "success");
+        } else {
+            btn.textContent = "+ Add to Library";
+            btn.disabled    = false;
+            showToast(data.detail || "Already in library.", "error");
+        }
+    } catch {
+        btn.disabled    = false;
+        btn.textContent = "+ Add to Library";
+        showToast("Something went wrong.", "error");
+    }
+}
