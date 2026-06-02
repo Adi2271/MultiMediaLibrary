@@ -75,6 +75,31 @@ async def library_page(
         "categories":      [c.value for c in MediaCategory],
     })
 
+# ── GET /library/{id} — Detail page (Jinja2) ──────────────────────────────────
+@router.get("/library/{item_id}")
+async def detail_page(
+    item_id: int,
+    request: Request,
+    db:      AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(MediaItem).where(MediaItem.id == item_id))
+    item   = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found.")
+
+    logs_result = await db.execute(
+        select(ActivityLog)
+        .where(ActivityLog.media_item_id == item_id)
+        .order_by(ActivityLog.timestamp.desc())
+    )
+    logs = logs_result.scalars().all()
+
+    return templates.TemplateResponse("detail.html", {
+        "request":  request,
+        "item":     item,
+        "logs":     logs,
+        "statuses": [s.value for s in MediaStatus],
+    })
 
 # ── GET /library/{id} — Detail page (Jinja2) ──────────────────────────────────
 @router.patch("/api/library/{item_id}")
@@ -143,8 +168,3 @@ async def delete_item(
     await db.execute(delete(MediaItem).where(MediaItem.id == item_id))
     await db.commit()
     return {"deleted": item_id}
-    
-    # Log removal BEFORE deleting (cascade will kill logs after)
-    # So we create a standalone log with no FK — store title in detail
-    # Instead: just delete quietly but keep a ghost log approach
-    # Simplest: log it first, then delete logs, then delete item
