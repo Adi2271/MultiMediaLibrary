@@ -13,12 +13,14 @@
 <div id="tab-search" class="tab-content">
     <form method="GET" action="/search" class="search-form glass-card">
         <input type="text" name="q" value="{{ query }}" placeholder="Search title..." class="search-input" autofocus />
-        <select name="category" class="filter-select">
-            <option value="anime" {% if category=="anime" %}selected{% endif %}>Anime</option>
-            <option value="manga" {% if category=="manga" %}selected{% endif %}>Manga</option>
-            <option value="movie" {% if category=="movie" %}selected{% endif %}>Movie</option>
-            <option value="webseries" {% if category=="webseries" %}selected{% endif %}>Webseries</option>
-        </select>
+        <div class="custom-select-wrap">
+            <select name="category" class="filter-select">
+                <option value="anime" {% if category=="anime" %}selected{% endif %}>Anime</option>
+                <option value="manga" {% if category=="manga" %}selected{% endif %}>Manga</option>
+                <option value="movie" {% if category=="movie" %}selected{% endif %}>Movie</option>
+                <option value="webseries" {% if category=="webseries" %}selected{% endif %}>Webseries</option>
+            </select>
+        </div>
         <button type="submit" class="btn-primary">Search</button>
     </form>
 

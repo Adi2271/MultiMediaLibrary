@@ -117,15 +117,12 @@ function renderTrending(elId, items) {
     const cat = catMap[elId] || "anime";
 
     el.innerHTML = items.slice(0, 10).map((item, i) => `
-        <div class="trend-item">
-            onclick="openTrendInfo(
-                 ${JSON.stringify(item.title || "")},
-                 ${JSON.stringify(cat)},
-                 ${JSON.stringify(item.image || "")},
-                 ${JSON.stringify(item.score || "")},
-                 ${JSON.stringify(item.year  || "")}
-            )"
-            style="cursor:pointer;">
+        <div class="trend-item"
+            data-title="${(item.title || "").replace(/"/g, '&quot;')}"
+            data-category="${cat}"
+            data-image="${item.image || ""}"
+            data-score="${item.score || ""}"
+            data-year="${item.year || ""}">
             <span class="trend-rank ${i < 3 ? 'top' : ''}">#${i + 1}</span>
             ${item.image
                 ? `<img src="${item.image}" class="trend-img" alt="" loading="lazy">`
@@ -137,6 +134,20 @@ function renderTrending(elId, items) {
             ${item.score ? `<span class="trend-score">⭐ ${item.score}</span>` : ""}
         </div>
     `).join("");
+
+    // click listeners 
+    el.querySelectorAll(".trend-item").forEach(el => {
+        el.style.cursor = "pointer";
+        el.addEventListener("click", () => {
+            openTrendInfo(
+                el.dataset.title,
+                el.dataset.category,
+                el.dataset.image,
+                el.dataset.score,
+                el.dataset.year,
+            );
+        });
+    });
 }
 
 // ══════════════════════════════════════════
@@ -242,8 +253,13 @@ async function refreshTotal(itemId) {
         const res  = await fetch(`/api/library/${itemId}/refresh`, { method: "POST" });
         const data = await res.json();
         if (data.updated) {
-            showToast(`Updated: ${data.new_total} total episodes/chapters.`, "success");
-            setTimeout(() => location.reload(), 1000);
+            showToast(`Updated: ${data.new_total} total.`, "success");
+            // Update displayed total without full reload
+            const totalEl = document.getElementById("current-total");
+            if (totalEl) totalEl.textContent = `${data.new_total} ep/ch`;
+            const input = document.getElementById("progress-input");
+            if (input) input.max = data.new_total;
+            setTimeout(() => location.reload(), 1500);
         } else {
             showToast("Already up to date.", "success");
         }

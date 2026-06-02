@@ -15,7 +15,7 @@
                 </span>
                 {% if item.year_released %}<span class="meta-pill">{{ item.year_released }}</span>{% endif %}
                 {% if item.user_rating %}<span class="meta-pill accent">⭐ {{ item.user_rating }}/10</span>{% endif %}
-                {% if not item.total %}
+                {% if not item.total and item.category.value != "movie" %}
                     <span class="ongoing-tag">Ongoing</span>
                 {% endif %}
             </div>
@@ -62,10 +62,12 @@
                         <span class="meta-pill">/ {{ item.total }}</span>
                     {% else %}
                         <span class="ongoing-tag">Ongoing</span>
+                        <span class="meta-pill" id="current-total" style="color:var(--text-3);">
+                            {% if item.total %}{{ item.total }} known{% else %}total unknown{% endif %}
+                        </span>
                         {% if item.source_api in ['jikan', 'tmdb'] %}
                         <button class="btn-refresh shimmer"
-                                data-item-id="{{ item.id }}"
-                                onclick="refreshTotal(this.dataset.itemId)"
+                                onclick="refreshTotal('{{ item.id }}')"
                                 title="Refresh total count from API">
                             ↻ Refresh
                         </button>

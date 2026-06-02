@@ -167,9 +167,9 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;    /* push to top area */
     text-align: center;
-    padding: 4rem 2rem 3rem;
+    padding: 12vh 2rem 3rem;        /* top padding controls vertical position */
     position: relative;
 }
 
@@ -180,132 +180,50 @@ body {
     letter-spacing: -0.05em;
     color: var(--text);
     line-height: 1;
-    margin-bottom: 2.5rem;      /* push brand higher, more gap before text */
+    margin-bottom: 2rem;
     text-shadow:
         0 0 80px rgba(0,212,255,0.15),
         0 0 160px rgba(0,212,255,0.08);
-    /* Subtle shimmer on brand — softer than cards */
     position: relative;
+    overflow: hidden;               /* needed for shimmer */
 }
-.home-brand::after {
+
+/* Radial/bulb shimmer on brand text only */
+.home-brand::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(0,212,255,0.04) 50%,
-        transparent 100%
+    top: 50%;
+    left: -30%;
+    transform: translateY(-50%);
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0,212,255,0.12) 0%,
+        transparent 70%
     );
     pointer-events: none;
+    animation: brandGlow 4s ease-in-out infinite;
+}
+
+@keyframes brandGlow {
+    0%   { left: -30%; opacity: 0.6; }
+    50%  { left: 70%;  opacity: 1; }
+    100% { left: -30%; opacity: 0.6; }
 }
 
 .loop-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(1.4rem, 4vw, 2.4rem);   /* bigger — closer to brand size */
+    font-size: clamp(0.85rem, 2vw, 1.1rem);   /* half of brand */
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent);
-    letter-spacing: -0.02em;
-    text-shadow: 0 0 40px var(--accent-glow);
-    min-height: 3.5rem;
-}
-
-.loop-text {
-    display: inline-block;
-}
-
-.loop-text.fade-out {
-    animation: blurFadeOut 0.3s ease forwards;
-}
-.loop-text.fade-in {
-    animation: blurFadeIn 0.3s ease forwards;
-}
-
-@keyframes blurFadeOut {
-    from { opacity: 1; filter: blur(0px);  transform: translateY(0); }
-    to   { opacity: 0; filter: blur(6px);  transform: translateY(-10px); }
-}
-@keyframes blurFadeIn {
-    from { opacity: 0; filter: blur(6px);  transform: translateY(10px); }
-    to   { opacity: 1; filter: blur(0px);  transform: translateY(0); }
-}
-
-.home-brand {
-    font-family: var(--font-display);
-    font-size: clamp(3.5rem, 10vw, 8rem);
-    font-weight: 800;
-    letter-spacing: -0.05em;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 2.5rem;
-    text-shadow:
-        0 0 80px rgba(0,212,255,0.15),
-        0 0 120px rgba(0,212,255,0.08);
-    position: relative;
-}
-
-.loop-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: clamp(1.1rem, 3vw, 1.8rem);
-    font-family: var(--font-display);
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.02em;
+    letter-spacing: 0.02em;
     text-shadow: 0 0 30px var(--accent-glow);
-    min-height: 2.5rem;
-}
-
-.loop-arrow {
-    font-size: 1.2em;
-    animation: arrowPulse 1.5s ease-in-out infinite;
-    color: var(--text-2);
-}
-
-@keyframes arrowPulse {
-    0%, 100% { opacity: 0.4; transform: translateX(0); }
-    50% { opacity: 1; transform: translateX(4px); }
-}
-
-.loop-text {
-    display: inline-block;
-    animation: none;
-}
-
-.loop-text.fade-out {
-    animation: loopFadeOut 0.35s ease forwards;
-}
-.loop-text.fade-in {
-    animation: loopFadeIn 0.35s ease forwards;
-}
-
-@keyframes loopFadeOut {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-12px); }
-}
-@keyframes loopFadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-.scroll-hint {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--text-3);
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    animation: bounceDown 2s ease-in-out infinite;
-}
-@keyframes bounceDown {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(6px); }
+    min-height: 2rem;
+    opacity: 0.85;
 }
 
 /* ── Trending ── */
@@ -833,6 +751,8 @@ body {
     object-fit: cover;
     flex-shrink: 0;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    transition: none;
+    transform: none !important;
 }
 
 .detail-info { flex: 1; min-width: 240px; }
