@@ -15,5 +15,3 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 ```
-
-Add your TMDB API key to `.env`:
