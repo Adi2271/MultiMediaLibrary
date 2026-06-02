@@ -176,7 +176,7 @@ body {
 .home-brand {
     grid-row: 2;
     font-family: var(--font-display);
-    font-size: clamp(3rem, 88vw, 6.5rem);
+    font-size: clamp(3rem, 8vw, 6.5rem);
     font-weight: 800;
     letter-spacing: -0.05em;
     color: var(--text);
@@ -226,6 +226,29 @@ body {
     text-shadow: 0 0 30px var(--accent-glow);
     min-height: 2rem;
     opacity: 0.9;
+}
+
+.loop-text {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+.loop-text.fade-out {
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.loop-text.fade-in {
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideUp {
+    0%   { opacity: 1; transform: translateY(0);     filter: blur(0px); }
+    100% { opacity: 0; transform: translateY(-20px); filter: blur(4px); }
+}
+
+@keyframes slideIn {
+    0%   { opacity: 0; transform: translateY(24px);  filter: blur(4px); }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0);     filter: blur(0px); }
 }
 
 /* ── Trending ── */

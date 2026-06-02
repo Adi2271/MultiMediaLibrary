@@ -36,9 +36,9 @@ function startLoopText() {
             el.textContent = LOOP_TEXTS[loopIndex];
             el.classList.remove("fade-out");
             el.classList.add("fade-in");
-            setTimeout(() => el.classList.remove("fade-in"), 350);
-        }, 350);
-    }, 2500);
+            setTimeout(() => el.classList.remove("fade-in"), 400);
+        }, 400);
+    }, 3200);
 }
 
 // ══════════════════════════════════════════
