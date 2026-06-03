@@ -37,11 +37,12 @@ async def timeline_page(
     grouped = defaultdict(list)
     
     for log, item in rows:
-        date_key = log.timestamp.strftime("%B %d, %Y")
-        grouped[date_key].append({
+        date_obj = log.timestamp.date()
+        grouped[date_obj].append({
             "action":    log.action,
             "detail":    log.detail,
             "time":      log.timestamp.strftime("%I:%M %p"),
+            "timestamp": log.timestamp,
             "item_id":   item.id,
             "title":     item.title,
             "category":  item.category.value,
@@ -50,11 +51,12 @@ async def timeline_page(
         })
 
     for removal in removals:
-        date_key = removal.timestamp.strftime("%B %d, %Y")
-        grouped[date_key].append({
+        date_obj = removal.timestamp.date()
+        grouped[date_obj].append({
             "action":   "Removed",
             "detail":   removal.detail,
             "time":     removal.timestamp.strftime("%I:%M %p"),
+            "timestamp": removal.timestamp,
             "item_id":  None,
             "title":    removal.title,
             "category": removal.category,
@@ -62,13 +64,15 @@ async def timeline_page(
             "status":   "dropped",
         })
 
-    # Sort each day's entries by time
-    sorted_grouped = dict(
-        sorted(grouped.items(),
-               key=lambda x: x[0],
-               reverse=True)
-    )
-    
+    sorted_grouped = {
+        date_obj.strftime("%B %d, %Y"): sorted(
+            logs,
+            key=lambda entry: entry["timestamp"],
+            reverse=True,
+        )
+        for date_obj, logs in sorted(grouped.items(), key=lambda x: x[0], reverse=True)
+    }
+
     return templates.TemplateResponse("timeline.html", {
         "request": request,
         "grouped": sorted_grouped,
