@@ -33,7 +33,7 @@ async def _tmdb_search(query: str, category: str) -> list[dict]:
     genre_map = await _get_genre_map(category)
 
     results = []
-    for item in data.get("results", [])[:12]:
+    for item in data.get("results", [])[:21]:
         if category == "movie":
             title        = item.get("title", "")
             release_year = int(item["release_date"][:4]) if item.get("release_date") else None

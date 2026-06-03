@@ -6,7 +6,7 @@ JIKAN_BASE = "https://api.jikan.moe/v4"
 
 async def search_anime(query: str, retries: int = 2) -> list[dict]:
     url    = f"{JIKAN_BASE}/anime"
-    params = {"q": query, "limit": 12, "sfw": True}
+    params = {"q": query, "limit": 21, "sfw": True}
 
     for attempt in range(retries + 1):
         try:
@@ -41,7 +41,7 @@ async def search_anime(query: str, retries: int = 2) -> list[dict]:
 
 async def search_manga(query: str, retries: int = 2) -> list[dict]:
     url    = f"{JIKAN_BASE}/manga"
-    params = {"q": query, "limit": 12, "sfw": True}
+    params = {"q": query, "limit": 21, "sfw": True}
 
     for attempt in range(retries + 1):
         try:

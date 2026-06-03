@@ -94,9 +94,9 @@ async def get_recommendations(
         elif category == "manga":
             api_results = await _recommend_manga(top_genres)
         elif category == "movie":
-            api_results = await _recommend_tmdb(top_genres, "movie")
+            api_results = await _recommend_tmdb(top_genres, "movie", limit)
         elif category == "webseries":
-            api_results = await _recommend_tmdb(top_genres, "webseries")
+            api_results = await _recommend_tmdb(top_genres, "webseries", limit)
         else:
             return []
     except Exception:
@@ -159,7 +159,7 @@ async def _recommend_anime(top_genres: list[str]) -> list[dict]:
     return results
 
 
-async def _recommend_tmdb(top_genres: list[str], category: str) -> list[dict]:
+async def _recommend_tmdb(top_genres: list[str], category: str, limit: int = 21) -> list[dict]:
     # Use discover endpoint — filters by genre ID, sorted by popularity
     genre_map = TMDB_MOVIE_GENRE_IDS if category == "movie" else TMDB_TV_GENRE_IDS
     endpoint  = "discover/movie" if category == "movie" else "discover/tv"
@@ -183,22 +183,30 @@ async def _recommend_tmdb(top_genres: list[str], category: str) -> list[dict]:
         "sort_by":             "popularity.desc",
         "vote_average.gte":    7.0,
         "vote_count.gte":      200,      # Avoid obscure low-vote titles
-        "page":                1,
     }
     if genre_ids:
         params["with_genres"] = ",".join(genre_ids[:2])
 
+    per_page = 20
+    pages_to_fetch = max(2, (limit * 2 + per_page - 1) // per_page)
+    raw_results = []
+
     async with httpx.AsyncClient(timeout=10) as client:
-        resp = await client.get(f"{TMDB_BASE}/{endpoint}", params=params)
-        resp.raise_for_status()
-        data = resp.json()
+        for page in range(1, pages_to_fetch + 1):
+            params["page"] = page
+            resp = await client.get(f"{TMDB_BASE}/{endpoint}", params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            raw_results.extend(data.get("results", []))
+            if len(data.get("results", [])) < per_page:
+                break
 
     # Reuse cached genre map from tmdb.py for label lookup
     from services.tmdb import _get_genre_map
     label_map = await _get_genre_map(category)
 
     results = []
-    for item in data.get("results", [])[:21]:
+    for item in raw_results[: limit * 2]:
         if category == "movie":
             title      = item.get("title", "")
             year       = int(item["release_date"][:4]) if item.get("release_date") else None
