@@ -198,7 +198,7 @@ async def _recommend_tmdb(top_genres: list[str], category: str) -> list[dict]:
     label_map = await _get_genre_map(category)
 
     results = []
-    for item in data.get("results", [])[:15]:
+    for item in data.get("results", [])[:21]:
         if category == "movie":
             title      = item.get("title", "")
             year       = int(item["release_date"][:4]) if item.get("release_date") else None
