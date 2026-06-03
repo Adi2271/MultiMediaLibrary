@@ -71,5 +71,5 @@ async def timeline_page(
     
     return templates.TemplateResponse("timeline.html", {
         "request": request,
-        "grouped": dict(grouped),
+        "grouped": sorted_grouped,
     })

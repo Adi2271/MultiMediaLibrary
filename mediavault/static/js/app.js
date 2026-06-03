@@ -448,7 +448,6 @@ async function submitManual() {
                     const el = document.getElementById(id);
                     if (el) el.value = "";
                 });
-            tryLoadIframe("");
         } else {
             showToast(data.detail || "Could not add.", "error");
         }
