@@ -50,7 +50,7 @@ TMDB_TV_GENRE_IDS = {
 async def get_recommendations(
     db:       AsyncSession,
     category: str,
-    limit:    int = 15,
+    limit:    int = 25,
 ) -> list[dict]:
 
     # ── Step 1: Fetch library items for this category ─────────────────────
@@ -130,7 +130,7 @@ async def _recommend_anime(top_genres: list[str]) -> list[dict]:
     params = {
         "order_by": "popularity",
         "sort":     "asc",        # Most popular first
-        "limit":    20,
+        "limit":    25,
         "sfw":      True,
         "min_score": 7.0,          # Only well-rated shows
     }
@@ -238,7 +238,7 @@ async def _recommend_manga(top_genres: list[str]) -> list[dict]:
     params = {
         "order_by":  "popularity",
         "sort":      "asc",
-        "limit":     20,
+        "limit":     25,
         "sfw":       True,
         "min_score": 7.0,
         "type":      "manga",   # Only manga, excludes light novels/doujin

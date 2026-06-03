@@ -46,7 +46,7 @@ async def search_page(
             error = "Search failed — API may be rate limited. Please try again."
     else:
         try:
-            recommendations = await get_recommendations(db, category, limit=10)
+            recommendations = await get_recommendations(db, category, limit=21)
         except Exception:
             recommendations = []
 
